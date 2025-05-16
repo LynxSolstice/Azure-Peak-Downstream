@@ -27274,7 +27274,7 @@
 /turf/open/floor/rogue/ruinedwood/spiral,
 /area/rogue/outdoors/beach)
 "jIV" = (
-/obj/structure/roguewindow/openclose/reinforced{
+/obj/structure/roguewindow/openclose/reinforced/inn{
 	dir = 1
 	},
 /turf/open/floor/rogue/rooftop{
@@ -49067,7 +49067,7 @@
 /turf/open/floor/rogue/dirt/road,
 /area/rogue/under/cavewet/bogcaves/sunkencity)
 "ryT" = (
-/obj/structure/roguewindow/openclose/reinforced{
+/obj/structure/roguewindow/openclose/reinforced/inn{
 	dir = 8
 	},
 /turf/open/floor/rogue/rooftop{
@@ -50025,7 +50025,7 @@
 /turf/open/floor/rogue/concrete,
 /area/rogue/under/cave/dungeon1/gethsmane/inner)
 "rRi" = (
-/obj/structure/roguewindow/openclose/reinforced{
+/obj/structure/roguewindow/openclose/reinforced/inn{
 	dir = 1
 	},
 /turf/open/floor/rogue/ruinedwood,
@@ -67833,13 +67833,10 @@
 	},
 /area/rogue/indoors/town)
 "ygG" = (
-/obj/structure/table/wood{
-	icon_state = "tablewood1"
+/obj/structure/roguewindow/openclose/reinforced/inn,
+/turf/open/floor/rogue/rooftop{
+	icon_state = "roofg"
 	},
-/obj/item/candle/candlestick/gold/single/lit{
-	pixel_y = 9
-	},
-/turf/open/floor/rogue/wood,
 /area/rogue/indoors/town/tavern)
 "ygS" = (
 /obj/effect/decal/cobbleedge{
@@ -362590,7 +362587,7 @@ bGf
 bGf
 bGf
 kSK
-fbg
+ygG
 uhn
 uhn
 aVq
@@ -364398,7 +364395,7 @@ bGf
 bGf
 bGf
 kSK
-fbg
+ygG
 xdW
 xdW
 qWJ
@@ -366206,7 +366203,7 @@ bGf
 bGf
 bGf
 kSK
-fbg
+ygG
 xQM
 xQM
 vja
@@ -368014,7 +368011,7 @@ bGf
 bGf
 bGf
 kSK
-fbg
+ygG
 kUG
 kUG
 rIv
@@ -477869,7 +477866,7 @@ jlW
 qcy
 kUG
 kUG
-ygG
+vbV
 tvR
 kSK
 bGf
@@ -479213,7 +479210,7 @@ kSK
 kSK
 kSK
 kSK
-fbg
+ygG
 pvg
 pvg
 phH
@@ -481015,7 +481012,7 @@ bGf
 bGf
 bGf
 kSK
-fbg
+ygG
 gvx
 pvg
 tvR
@@ -484631,7 +484628,7 @@ bGf
 bGf
 bGf
 kSK
-fbg
+ygG
 cHP
 uhn
 cnL

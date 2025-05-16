@@ -17,6 +17,7 @@
 	pass_flags = LETPASSTHROW
 	climb_time = 20
 	climb_offset = 10
+	opacity = 0
 	attacked_sound = 'sound/combat/hits/onglass/glasshit.ogg'
 	break_sound = "glassbreak"
 	destroy_sound = 'sound/combat/hits/onwood/destroywalldoor.ogg'
@@ -88,6 +89,9 @@
 	base_state = "reinforcedwindow"
 	max_integrity = 800
 	integrity_failure = 0.1
+
+/obj/structure/roguewindow/openclose/reinforced/inn
+	opacity = 1
 
 /obj/structure/roguewindow/openclose/reinforced/OnCrafted(dirin)
 	dir = turn(dirin, 180)
