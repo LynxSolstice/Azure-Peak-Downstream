@@ -46,7 +46,6 @@
 	destroy_sound = 'sound/items/pickbreak.ogg'
 	resistance_flags = FIRE_PROOF
 	associated_skill = /datum/skill/misc/lockpicking	//Doesn't do anything, for tracking purposes only
-	always_destroy = TRUE
 
 	grid_width = 32
 	grid_height = 64
