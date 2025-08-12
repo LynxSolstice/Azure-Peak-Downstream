@@ -27,8 +27,8 @@
 	var/obj/item/rogueweapon/conjured_weapon = null
 
 	var/list/iron_weapons = list(
-		"Iron Short Sword" = /obj/item/rogueweapon/sword/iron/short,
-		"Iron Messer" = /obj/item/rogueweapon/sword/iron/messer,
+		"Iron Short Sword" = /obj/item/rogueweapon/sword/short/iron,
+		"Iron Messer" = /obj/item/rogueweapon/sword/short/messer/iron,
 		"Zweihander" = /obj/item/rogueweapon/greatsword/zwei,
 		"Cudgel" = /obj/item/rogueweapon/mace/cudgel,
 		"Iron Warhammer" = /obj/item/rogueweapon/mace/warhammer,
@@ -64,15 +64,12 @@
 		return
 	if(src.conjured_weapon)
 		qdel(src.conjured_weapon)
-		src.conjured_weapon = null
 	weapon_choice = weapons[weapon_choice]
 
 	var/obj/item/rogueweapon/R = new weapon_choice(user.drop_location())
 	R.blade_dulling = DULLING_SHAFT_CONJURED
-	R.filters += filter(type = "drop_shadow", x=0, y=0, size=1, offset = 2, color = GLOW_COLOR_ARCANE)
-	R.smeltresult = null
-	R.salvage_result = null
-	R.fiber_salvage = FALSE
+	if(!QDELETED(R))
+		R.AddComponent(/datum/component/conjured_item, GLOW_COLOR_ARCANE)
 	user.put_in_hands(R)
 	src.conjured_weapon = R
 	return TRUE
@@ -82,7 +79,6 @@
 
 /obj/effect/proc_holder/spell/invoked/conjure_weapon/Destroy()
 	if(src.conjured_weapon)
-		src.visible_message(span_warning("The [src]'s borders begin to shimmer and fade, before it vanishes entirely!"))
+		conjured_weapon.visible_message(span_warning("The [conjured_weapon]'s borders begin to shimmer and fade, before it vanishes entirely!"))
 		qdel(src.conjured_weapon)
-		src.conjured_weapon = null
 	return ..()

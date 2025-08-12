@@ -29,6 +29,9 @@ GLOBAL_LIST_EMPTY(preference_patrons)
 	/// List of words that this god considers profane. (Master for all faiths. Inhumen have their own list.)
 	var/list/profane_words = list("zizo","matthios","graggar","baotha","cock","dick","fuck","shit","pussy","cuck","cunt","asshole","pintle")
 
+	/// List of traits associated with rank. Trait = Cleric_Tier
+	var/list/traits_tier = list()
+
 	var/datum/storyteller/storyteller
 
 /datum/patron/proc/on_gain(mob/living/pious)
@@ -53,12 +56,12 @@ GLOBAL_LIST_EMPTY(preference_patrons)
 /// Called when a patron's follower attempts to pray.
 /// Returns TRUE if they satisfy the needed conditions.
 /datum/patron/proc/can_pray(mob/living/follower)
+	SHOULD_CALL_PARENT(TRUE)
 	// Allows death-bed prayers
 	if(follower.has_status_effect(STATUS_EFFECT_UNCONSCIOUS))
 		if(follower.has_status_effect(STATUS_EFFECT_SLEEPING))
 			to_chat(follower, span_danger("I mustn't be sleeping to pray!"))
 			return FALSE	//Stops praying just by sleeping.
-	SHOULD_CALL_PARENT(TRUE)
 	. = TRUE
 
 /// Called when a patron's follower prays to them.

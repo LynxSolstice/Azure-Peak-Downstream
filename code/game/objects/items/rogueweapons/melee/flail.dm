@@ -102,16 +102,18 @@
 
 /obj/item/rogueweapon/flail/aflail
 	name = "decrepit flail"
-	desc = "This is a swift, ancient flail. Strikes hard and far. Aeon's grasp is upon its form."
+	desc = "A spiked ball of wrought bronze, chained to a rotwooden handle. The chains groan with every twirl, strained by forces it hadn't felt in millenia; swing it a bit too hard, and there's a chance that the flailhead might completely fly off."
 	icon_state = "aflail"
 	force = 22
 	max_integrity = 175
-	smeltresult = /obj/item/ingot/aalloy
 	blade_dulling = DULLING_SHAFT_CONJURED
+	color = "#bb9696"
+	smeltresult = /obj/item/ingot/aaslag
+	anvilrepair = null
 
 /obj/item/rogueweapon/flail/sflail/paflail
 	name = "ancient flail"
-	desc = "This is a swift, ancient flail. Strikes hard and far. Aeon's grasp has been molded away from its form."
+	desc = "A spiked ball of polished gilbranze, chained to a reinforced handle. They say that His children worshipped the flail above all else, for its twirls replicated the Comet Syon's blazing flights."
 	icon_state = "aflail"
 	smeltresult = /obj/item/ingot/aaslag
 
@@ -126,129 +128,24 @@
 	name = "swift journey"
 	desc = "The striking head is full of teeth, rattling viciously with ever strike, with every rotation. Each set coming from one the wielder has laid to rest. Carried alongside them as a great show of respect."
 	icon_state = "necraflail"
+	force = 33 // 10% force increase, yippee
 
 /obj/item/rogueweapon/flail/sflail/psyflail
-	name = "psydon's flail"
+	name = "psydonian flail"
 	desc = "An ornate flail, plated in a ceremonial veneer of silver. Its flanged head can crumple even the toughest of darksteel-maille."
 	icon_state = "psyflail"
 
 /obj/item/rogueweapon/flail/sflail/psyflail/ComponentInitialize()
-	. = ..()							//+3 force, +50 int, +1 def, make silver
-	AddComponent(/datum/component/psyblessed, FALSE, 3, FALSE, 50, 1, TRUE)
-
-/datum/intent/whip/lash
-	name = "lash"
-	blade_class = BCLASS_BLUNT
-	attack_verb = list("lashes", "cracks")
-	hitsound = list('sound/combat/hits/blunt/flailhit.ogg')
-	chargetime = 0
-	recovery = 7
-	penfactor = BLUNT_DEFAULT_PENFACTOR
-	damfactor = 1.1
-	reach = 2
-	icon_state = "inlash"
-	item_d_type = "slash"
-
-/datum/intent/whip/crack
-	name = "crack"
-	blade_class = BCLASS_CUT
-	attack_verb = list("cracks", "strikes") //something something dwarf fotresss
-	hitsound = list('sound/combat/hits/blunt/flailhit.ogg')
-	chargetime = 0
-	recovery = 10
-	penfactor = 40
-	reach = 3
-	icon_state = "incrack"
-	item_d_type = "slash"
-
-/datum/intent/whip/punish
-	name = "punish"
-	blade_class = BCLASS_BLUNT
-	attack_verb = list("lashes")
-	hitsound = list('sound/combat/hits/blunt/flailhit.ogg')
-	chargetime = 0
-	recovery = 10
-	penfactor = BLUNT_DEFAULT_PENFACTOR
-	reach = 2
-	icon_state = "inpunish"
-	item_d_type = "blunt"
-
-/obj/item/rogueweapon/whip
-	force = 21
-	possible_item_intents = list(/datum/intent/whip/crack, /datum/intent/whip/lash, /datum/intent/whip/punish)
-	name = "whip"
-	desc = "A leather whip. Built to last, with a sharp stone for a tip."
-	icon_state = "whip"
-	icon = 'icons/roguetown/weapons/32.dmi'
-	sharpness = IS_BLUNT
-	//dropshrink = 0.75
-	wlength = WLENGTH_NORMAL
-	w_class = WEIGHT_CLASS_NORMAL
-	slot_flags = ITEM_SLOT_HIP | ITEM_SLOT_BELT
-	associated_skill = /datum/skill/combat/whipsflails
-	anvilrepair = /datum/skill/craft/tanning
-	parrysound = list('sound/combat/parry/parrygen.ogg')
-	swingsound = WHIPWOOSH
-	throwforce = 5
-	wdefense = 0
-	minstr = 6
-	grid_width = 32
-	grid_height = 64
-
-/obj/item/rogueweapon/whip/getonmobprop(tag)
 	. = ..()
-	if(tag)
-		switch(tag)
-			if("gen")
-				return list("shrink" = 0.5,"sx" = -10,"sy" = -3,"nx" = 11,"ny" = -2,"wx" = -7,"wy" = -3,"ex" = 3,"ey" = -3,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0,"nturn" = 22,"sturn" = -23,"wturn" = -23,"eturn" = 29,"nflip" = 0,"sflip" = 8,"wflip" = 8,"eflip" = 0)
-			if("onbelt")
-				return list("shrink" = 0.3,"sx" = -2,"sy" = -5,"nx" = 4,"ny" = -5,"wx" = 0,"wy" = -5,"ex" = 2,"ey" = -5,"nturn" = 0,"sturn" = 0,"wturn" = 0,"eturn" = 0,"nflip" = 0,"sflip" = 0,"wflip" = 0,"eflip" = 0,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0)
+	add_psyblessed_component(is_preblessed = FALSE, bonus_force = 3, bonus_sharpness = 0, bonus_integrity = 50, bonus_wdef = 1, make_silver = TRUE)
 
-//Ranged mace-like mode
-/datum/intent/whip/crack/blunt
-	name = "bludgen"
-	blade_class = BCLASS_BLUNT
-	recovery = 6
-	damfactor = 1.2 	//20% bonus because no pen, and it doesn't get smash crits.
-	reach = 2			//Less range than a normal whip by 1
-	icon_state = "instrike"
-	item_d_type = "blunt"
+/obj/item/rogueweapon/flail/sflail/psyflail/relic
+	name = "Consecratia"
+	desc = "The weight of His anguish, His pain, His hope and His love for humenkind - all hanging on the ornamental silver-steel head chained to this arm. <br><br>A declaration of love for all that Psydon lives for, and a crushing reminder to the arch-nemesis that they will not triumph as long as He endures."
+	icon_state = "psymorningstar"
 
-/obj/item/rogueweapon/whip/nagaika
-	name = "nagaika whip"
-	desc = "A short but heavy leather whip, sporting a blunt reinforced tip and a longer handle."
-	icon_state = "nagaika"
-	force = 25		//Same as a cudgel/sword for intent purposes. Basically a 2 range cudgel while one-handing.
-	possible_item_intents = list(/datum/intent/whip/crack/blunt, /datum/intent/whip/lash, /datum/intent/whip/punish, /datum/intent/sword/strike)
-	wdefense = 1	//Akin to a cudgel, still terrible at parrying though.
-
-/obj/item/rogueweapon/whip/xylix
-	name = "cackle lash"
-	desc = "The chimes of this whip are said to sound as the trickster's laughter itself."
-	icon_state = "xylixwhip"
-	force = 24
-
-/obj/item/rogueweapon/whip/antique
-	force = 29
-	name = "Repenta En"
-	desc = "An extremely well maintained whip, with a polished steel tip and gilded handle"
-	minstr = 11
-	icon_state = "gwhip"
-
-/obj/item/rogueweapon/whip/antique/psywhip
-	name = "Daybreak"
-	desc = "Holding the blessed silver evokes a memory of the Grand Otavan Cathedral, a testament to humenity's faith. There, upon the ceiling, was painted a scene-most-beautiful: of a robed Psydon standing before the Archdevil, parting the nite's sky with a crack from His fiery whip. Just as He had done prior, so too must you bring daelight to the darkness."
-	icon_state = "psywhip"
-	is_silver = TRUE
-
-/obj/item/rogueweapon/whip/psywhip_lesser
-	name = "psydonite whip"
-	desc = "An ornate whip, plated in a ceremonial veneer of silver. Crack the leather and watch as the apostates clammer aside."
-	icon_state = "psywhip_lesser"
-
-/obj/item/rogueweapon/whip/psywhip_lesser/ComponentInitialize()
-	. = ..()					//+3 force, +50 int, +1 def, make silver
-	AddComponent(/datum/component/psyblessed, FALSE, 3, FALSE, 50, 1, TRUE)
+/obj/item/rogueweapon/flail/sflail/psyflail/relic/ComponentInitialize()		//Pre-blessed, +100 Blade int, +100 int, +2 def, make it silver
+	add_psyblessed_component(is_preblessed = TRUE, bonus_force = 5, bonus_sharpness = 100, bonus_integrity = 100, bonus_wdef = 2, make_silver = TRUE)
 
 /obj/item/rogueweapon/flail/peasantwarflail
 	force = 10
@@ -298,6 +195,7 @@
 	associated_skill = /datum/skill/combat/whipsflails
 	slot_flags = ITEM_SLOT_BACK
 	blade_dulling = DULLING_SHAFT_GRAND
+	anvilrepair = /datum/skill/craft/weaponsmithing
 
 
 /obj/item/rogueweapon/flail/peasantwarflail/matthios/pickup(mob/living/user)

@@ -37,6 +37,20 @@
 	if(HAS_TRAIT(C, TRAIT_NODISMEMBER))
 		return FALSE
 
+	if(ishuman(owner))
+		var/mob/living/carbon/human/H = owner
+		var/obj/item/clothing/checked_armor = H.checkcritarmorreference(src.body_zone, bclass)
+		if(checked_armor && checked_armor.max_integrity != 0)
+			var/int_percent = round(((checked_armor.obj_integrity / checked_armor.max_integrity) * 100), 1) //lifted from examine
+			if(int_percent > 30 && !HAS_TRAIT(H, TRAIT_CRITICAL_WEAKNESS) && !HAS_TRAIT(H, TRAIT_EASYDISMEMBER))
+				to_chat(H, span_green("My [checked_armor.name] just saved me from losing my [src.name]!"))
+				checked_armor.obj_integrity -= checked_armor.max_integrity / 2 //Armor sundered
+				checked_armor.obj_integrity = max(1, checked_armor.obj_integrity) //No negative integrity
+				return FALSE
+
+	if(SEND_SIGNAL(src, COMSIG_MOB_DISMEMBER, src) & COMPONENT_CANCEL_DISMEMBER)
+		return FALSE //signal handled the dropping
+
 	var/obj/item/bodypart/affecting = C.get_bodypart(BODY_ZONE_CHEST)
 	if(affecting && dismember_wound)
 		affecting.add_wound(dismember_wound)
@@ -267,6 +281,20 @@
 		C.update_inv_shoes()
 		C.update_inv_pants()
 
+/obj/item/bodypart/taur/drop_limb(special) //copypasta
+	var/mob/living/carbon/C = owner
+	. = ..()
+	if(C && !special)
+		if(C.legcuffed)
+			C.legcuffed.forceMove(C.drop_location())
+			C.legcuffed.dropped(C)
+			C.legcuffed = null
+			C.update_inv_legcuffed()
+		if(C.shoes && (C.get_num_legs(FALSE) < 1))
+			C.dropItemToGround(C.shoes, force = TRUE)
+		C.update_inv_shoes()
+		C.update_inv_pants()
+
 /obj/item/bodypart/head/drop_limb(special)
 	if(!special)
 		//Drop all worn head items
@@ -357,7 +385,7 @@
 	if(brain)
 		if(brainmob)
 			brainmob.forceMove(brain) //Throw mob into brain.
-			brain.brainmob = brainmob //Set the brain to use the brainmob
+			brain.brainmob = brainmob
 			brainmob = null //Set head brainmob var to null
 		brain.Insert(C) //Now insert the brain proper
 		brain = null //No more brain in the head
