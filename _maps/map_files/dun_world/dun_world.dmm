@@ -3951,9 +3951,6 @@
 /obj/structure/ritualcircle/graggar{
 	icon_state = "graggar_active"
 	},
-/obj/structure/wonder{
-	name = "graggarite altar"
-	},
 /turf/open/floor/rogue/churchbrick,
 /area/rogue/under/cave/orcdungeon)
 "bnF" = (
@@ -10095,7 +10092,8 @@
 	},
 /area/rogue/indoors/town/manor)
 "dis" = (
-/turf/open/floor/carpet/red,
+/obj/structure/shard_holder,
+/turf/open/floor/rogue/blocks,
 /area/rogue/indoors/inq)
 "diA" = (
 /obj/structure/gate/bars/preopen{
@@ -356440,8 +356438,8 @@ dTp
 dTp
 dvP
 dxE
-dis
-dis
+ctG
+ctG
 dxE
 mFa
 drb
@@ -356893,7 +356891,7 @@ dTp
 dTp
 lbJ
 dis
-dis
+ctG
 oOy
 dTp
 vSl
@@ -357344,8 +357342,8 @@ dTp
 bYt
 qBH
 dxE
-dis
-dis
+ctG
+ctG
 dxE
 mFa
 drb
