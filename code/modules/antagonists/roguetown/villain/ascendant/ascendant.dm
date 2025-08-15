@@ -70,9 +70,9 @@ var/psydon_ascend = psydon_pool[7]
 				ADD_TRAIT(owner.current, trait, "[type]")
 
 			var/mob/living/carbon/human/dreamer = owner.current
-			var/sword_skill = dreamer.mind.get_skill_level(/datum/skill/combat/swords)
-			var/unarmed_skill = dreamer.mind.get_skill_level(/datum/skill/combat/unarmed)
-			var/wrestling_skill = dreamer.mind.get_skill_level(/datum/skill/combat/wrestling)
+			var/sword_skill = dreamer.get_skill_level(/datum/skill/combat/swords)
+			var/unarmed_skill = dreamer.get_skill_level(/datum/skill/combat/unarmed)
+			var/wrestling_skill = dreamer.get_skill_level(/datum/skill/combat/wrestling)
 			alert("WARNING: SCREEN EFFECTS CAN BE VERY INTENSE. IF YOU HAVE EPILEPSY, DO NOT USE THIS ANTAG ROLE, AND LET THE ADMINS KNOW.")
 			dreamer.mind.teach_crafting_recipe(/datum/crafting_recipe/roguetown/structure/ascendant)
 			dreamer.cmode_music = 'sound/music/combat_maniac2.ogg'
