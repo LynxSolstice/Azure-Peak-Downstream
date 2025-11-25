@@ -16,7 +16,7 @@
 	/// Traits we apply to the owner
 	var/static/list/applied_traits = list(
 		TRAIT_INFINITE_STAMINA,
-		TRAIT_SCHIZO_AMBIENCE,
+		TRAIT_PSYCHOSIS,
 		TRAIT_SHOCKIMMUNE,
 		TRAIT_MANIAC_AWOKEN, //as stated in lunatic, just gives flavortext and the trait
 		TRAIT_STEELHEARTED
@@ -25,7 +25,7 @@
 	/// Cached old stats in case we get removed
 	var/STASTR
 	var/STACON
-	var/STAEND
+	var/STAWIL
 
 /*
 var/psydon_artefact_one = psydon_pool[1]
@@ -84,10 +84,10 @@ var/psydon_ascend = psydon_pool[7]
 				dreamer.adjust_skillrank(/datum/skill/combat/wrestling, 6 - wrestling_skill, TRUE)
 			STASTR = dreamer.STASTR
 			STACON = dreamer.STACON
-			STAEND = dreamer.STAEND
+			STAWIL = dreamer.STAWIL
 			dreamer.STASTR += 2
 			dreamer.STACON += 2
-			dreamer.STAEND += 2
+			dreamer.STAWIL += 2
 			SEND_SOUND(owner.current, 'sound/villain/ascendant_intro.ogg')
 			to_chat(owner.current, span_danger("[antag_memory]"))
 

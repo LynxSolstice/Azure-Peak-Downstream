@@ -89,7 +89,7 @@
 /datum/supply_pack/rogue/Brigand/steelcuirass
 	name = "Steel Cuirass"
 	cost = 20
-	contains =  list(/obj/item/clothing/suit/roguetown/armor/plate/half)
+	contains =  list(/obj/item/clothing/suit/roguetown/armor/plate/cuirass)
 
 /datum/supply_pack/rogue/Brigand/scalemail
 	name = "Scalemail"
@@ -99,12 +99,12 @@
 /datum/supply_pack/rogue/Brigand/flutedcuirass
 	name = "Fluted Cuirass"
 	cost = 30
-	contains = list(/obj/item/clothing/suit/roguetown/armor/plate/half/fluted)
+	contains = list(/obj/item/clothing/suit/roguetown/armor/plate/cuirass/fluted)
 
-/datum/supply_pack/rogue/Brigand/blksteelcuirass
-	name = "Blacksteel Cuirass"
-	cost = 50
-	contains = list(/obj/item/clothing/suit/roguetown/armor/plate/blacksteel_half_plate)
+/datum/supply_pack/rogue/Brigand/brigandine
+	name = "Brigandine"
+	cost = 60
+	contains = list(/obj/item/clothing/suit/roguetown/armor/brigandine)
 
 ///////////////////
 // WRISTS/GLOVES //
@@ -114,6 +114,11 @@
 	name = "Steel Bracers"
 	cost = 10
 	contains = list(/obj/item/clothing/wrists/roguetown/bracers)
+
+/datum/supply_pack/rogue/Brigand/splintbracers
+	name = "Brigandine Rerebraces"
+	cost = 10
+	contains = list(/obj/item/clothing/wrists/roguetown/splintarms)
 
 /datum/supply_pack/rogue/Brigand/chaingauntlets
 	name = "Steel Chain Gauntlets"
@@ -128,6 +133,11 @@
 	name = "Steel Chain Chausses"
 	cost = 20
 	contains = list(/obj/item/clothing/under/roguetown/chainlegs)
+
+/datum/supply_pack/rogue/Brigand/splintlegs
+	name = "Brigandine Chausses"
+	cost = 20
+	contains = list(/obj/item/clothing/under/roguetown/splintlegs)
 
 /datum/supply_pack/rogue/Brigand/boots
 	name = "Steel Boots"
@@ -171,10 +181,10 @@
 /datum/supply_pack/rogue/Brigand/silverwarhammer
 	name = "Silver Warhammer"
 	cost = 80
-	contains = list(/obj/item/rogueweapon/mace/silver)
+	contains = list(/obj/item/rogueweapon/mace/warhammer/steel/silver)
 
 /datum/supply_pack/rogue/Brigand/flail
-	name = "Iron flail"
+	name = "Iron Flail"
 	cost = 10
 	contains = list(/obj/item/rogueweapon/flail)
 
@@ -207,6 +217,16 @@
 	name = "Steel Double-Headed Greataxe"
 	cost = 30
 	contains = list(/obj/item/rogueweapon/greataxe/steel/doublehead)
+
+/datum/supply_pack/rogue/Brigand/maul
+	name = "Maul"
+	cost = 40
+	contains = list(/obj/item/rogueweapon/mace/maul)
+
+/datum/supply_pack/rogue/Brigand/grandmaul
+	name = "Grand Maul"
+	cost = 80
+	contains = list(/obj/item/rogueweapon/mace/maul/grand)
 
 /////////////
 // SHIELDS //

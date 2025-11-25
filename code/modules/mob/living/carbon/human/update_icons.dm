@@ -68,8 +68,29 @@ There are several things that need to be remembered:
 	dna.species.handle_body(src)
 	..()
 
+#define SUNDER_FILTER "sunder_filter"
+
 /mob/living/carbon/human/update_fire()
-	if(fire_stacks + divine_fire_stacks < 10)
+	var/datum/status_effect/fire_handler/fire_stacks/sunder/sunder_status = has_status_effect(/datum/status_effect/fire_handler/fire_stacks/sunder)
+	var/datum/status_effect/fire_handler/fire_stacks/sunder/blessed/blessed_sunder = has_status_effect(/datum/status_effect/fire_handler/fire_stacks/sunder/blessed)
+	if(sunder_status?.on_fire || blessed_sunder?.on_fire)
+		var/filter = get_filter(SUNDER_FILTER)
+		if(!filter)
+			add_filter(SUNDER_FILTER, 2, list("type" = "outline", "color" = "#ffffff", "alpha" = 60, "size" = 1))
+		if(!sunder_light_obj)
+			sunder_light_obj = mob_light("#f5edda", 5, 5)
+		remove_overlay(SUNDER_LAYER)
+		var/mutable_appearance/new_fire_overlay = mutable_appearance('icons/mob/OnFire.dmi', "sunder_burning", -SUNDER_LAYER)
+		new_fire_overlay.appearance_flags = RESET_COLOR
+		overlays_standing[SUNDER_LAYER] = new_fire_overlay
+		apply_overlay(SUNDER_LAYER)
+		return
+	else
+		remove_filter(SUNDER_FILTER)
+		remove_overlay(SUNDER_LAYER)
+		QDEL_NULL(sunder_light_obj)
+
+	if(fire_stacks < 10)
 		return ..("Generic_mob_burning")
 	else
 		var/burning = dna.species.enflamed_icon
@@ -77,6 +98,7 @@ There are several things that need to be remembered:
 			return ..("widefire")
 		return ..(burning)
 
+#undef SUNDER_FILTER
 
 /mob/living/carbon/human/update_damage_overlays()
 	START_PROCESSING(SSdamoverlays,src)
@@ -600,14 +622,9 @@ There are several things that need to be remembered:
 
 /mob/living/carbon/human/update_inv_shoes()
 	remove_overlay(SHOES_LAYER)
-	remove_overlay(SHOESLEEVE_LAYER)
 	if(client && hud_used)
 		var/atom/movable/screen/inventory/inv = hud_used.inv_slots[SLOT_SHOES]
 		inv.update_icon()
-
-	var/obj/item/bodypart/taur/taur = get_taur_tail()
-	if(taur)
-		return // taurs don't render shoes if they manage to even equip them
 
 	if(shoes)
 		shoes.screen_loc = rogueui_shoes					//move the item to the appropriate screen loc
@@ -621,7 +638,10 @@ There are several things that need to be remembered:
 			var/mutable_appearance/shoes_overlay
 			if(dna.species.custom_clothes)
 				racecustom = dna.species.clothes_id
-			if((gender == FEMALE && !dna.species.use_m) || dna.species.use_f)
+			var/obj/item/bodypart/taur/taur = get_taur_tail()
+			if(taur)
+				shoes_overlay = shoes.build_worn_icon(default_layer = SHOES_LAYER, default_icon_file = 'icons/mob/clothing/feet.dmi', female = FALSE, customi = racecustom, sleeveindex = footindex)
+			else if((gender == FEMALE && !dna.species.use_m) || dna.species.use_f)
 				shoes_overlay = shoes.build_worn_icon(default_layer = SHOES_LAYER, default_icon_file = 'icons/mob/clothing/feet.dmi', female = TRUE, customi = racecustom, sleeveindex = footindex, boobed_overlay = has_boobed_overlay())
 			else
 				shoes_overlay = shoes.build_worn_icon(default_layer = SHOES_LAYER, default_icon_file = 'icons/mob/clothing/feet.dmi', female = FALSE, customi = racecustom, sleeveindex = footindex)
@@ -631,22 +651,8 @@ There are several things that need to be remembered:
 				shoes_overlay.pixel_y += dna.species.offset_features[OFFSET_SHOES][2]
 			overlays_standing[SHOES_LAYER] = shoes_overlay
 
-			//add sleeve overlays, then offset
-			var/list/sleeves = list()
-			if(shoes.sleeved && footindex > 0)
-				sleeves = get_sleeves_layer(shoes,footindex,SHOESLEEVE_LAYER)
-			if(sleeves)
-				for(var/X in sleeves)
-					var/mutable_appearance/S = X
-					if(OFFSET_SHOES in dna.species.offset_features)
-						S.pixel_x += dna.species.offset_features[OFFSET_SHOES][1]
-						S.pixel_y += dna.species.offset_features[OFFSET_SHOES][2]
-
-				overlays_standing[SHOESLEEVE_LAYER] = sleeves
-
 	rebuild_obscured_flags()
 	apply_overlay(SHOES_LAYER)
-	apply_overlay(SHOESLEEVE_LAYER)
 
 /mob/living/carbon/human/update_inv_s_store()
 /*
@@ -674,7 +680,7 @@ There are several things that need to be remembered:
 	return
 
 
-/mob/living/carbon/human/update_inv_head()
+/mob/living/carbon/human/update_inv_head(hide_nonstandard = FALSE)
 	remove_overlay(HEAD_LAYER)
 
 	if(!get_bodypart(BODY_ZONE_HEAD)) //Decapitated
@@ -704,7 +710,7 @@ There are several things that need to be remembered:
 	rebuild_obscured_flags()
 	update_hair() //hoodies
 
-/mob/living/carbon/human/update_inv_belt()
+/mob/living/carbon/human/update_inv_belt(hide_experimental = FALSE)
 	remove_overlay(BELT_LAYER)
 	remove_overlay(BELT_BEHIND_LAYER)
 
@@ -730,7 +736,7 @@ There are several things that need to be remembered:
 		if(!(cloak && (cloak.flags_inv & HIDEBELT)))
 			var/mutable_appearance/onbelt_overlay
 			var/mutable_appearance/onbelt_behind
-			if(beltr.experimental_onhip)
+			if(beltr.experimental_onhip && !hide_experimental)
 				var/list/prop
 				if(beltr.force_reupdate_inhand)
 					prop = beltr?.onprop?["onbelt"]
@@ -791,7 +797,7 @@ There are several things that need to be remembered:
 		if(!(cloak && (cloak.flags_inv & HIDEBELT)))
 			var/mutable_appearance/onbelt_overlay
 			var/mutable_appearance/onbelt_behind
-			if(beltl.experimental_onhip)
+			if(beltl.experimental_onhip && !hide_experimental)
 				var/list/prop
 				if(beltl.force_reupdate_inhand)
 					prop = beltl.onprop?["onbelt"]
@@ -946,7 +952,7 @@ There are several things that need to be remembered:
 		overlays_standing[MASK_LAYER] = mask_overlay
 		apply_overlay(MASK_LAYER)
 
-/mob/living/carbon/human/update_inv_back()
+/mob/living/carbon/human/update_inv_back(hide_experimental = FALSE)
 	remove_overlay(BACK_LAYER)
 	remove_overlay(BACK_BEHIND_LAYER)
 	remove_overlay(UNDER_CLOAK_LAYER)
@@ -967,7 +973,7 @@ There are several things that need to be remembered:
 			var/mutable_appearance/back_overlay
 			var/mutable_appearance/behindback_overlay
 			update_hud_backr(backr)
-			if(backr.experimental_onback)
+			if(backr.experimental_onback && !hide_experimental)
 				var/list/prop
 				if(backr.force_reupdate_inhand)
 					prop = backr.onprop?["onback"]
@@ -1020,7 +1026,7 @@ There are several things that need to be remembered:
 			update_hud_backl(backl)
 			var/mutable_appearance/back_overlay
 			var/mutable_appearance/behindback_overlay
-			if(backl.experimental_onback)
+			if(backl.experimental_onback && !hide_experimental)
 				var/list/prop
 				if(backl.force_reupdate_inhand)
 					prop = backl.onprop?["onback"]
@@ -1123,7 +1129,7 @@ There are several things that need to be remembered:
 			if(cloak.alternate_worn_layer == TABARD_LAYER)
 				overlays_standing[TABARD_LAYER] = cloak_overlay
 			if(cloak.alternate_worn_layer == UNDER_ARMOR_LAYER)
-				overlays_standing[UNDER_ARMOR_LAYER] = cloak_overlay	
+				overlays_standing[UNDER_ARMOR_LAYER] = cloak_overlay
 			if(cloak.alternate_worn_layer == CLOAK_BEHIND_LAYER)
 				overlays_standing[CLOAK_BEHIND_LAYER] = cloak_overlay
 			if(!cloak.alternate_worn_layer)
@@ -1411,7 +1417,7 @@ There are several things that need to be remembered:
 /mob/living/carbon/human/update_inv_mouth()
 	remove_overlay(MOUTH_LAYER)
 
-	if(!get_bodypart(BODY_ZONE_HEAD)) //Decapitated
+	if(!isdullahan(src) && !get_bodypart(BODY_ZONE_HEAD)) //Decapitated
 		return
 
 	if(client && hud_used && hud_used.inv_slots[SLOT_MOUTH])
@@ -1437,7 +1443,7 @@ There are several things that need to be remembered:
 				mouth_overlay.pixel_y += dna.species.offset_features[OFFSET_MOUTH_F][2]
 		overlays_standing[MOUTH_LAYER] = mouth_overlay
 		apply_overlay(MOUTH_LAYER)
-	
+
 	rebuild_obscured_flags()
 
 //endrogue
@@ -1653,7 +1659,6 @@ generate/load female uniform sprites matching all previously decided variables
 			if(get_altdetail_color())
 				pic.color = get_altdetail_color()
 			standing.overlays.Add(pic)
-
 
 	if(!isinhands && HAS_BLOOD_DNA(src))
 		var/index = "[t_state][sleeveindex]"
@@ -1923,7 +1928,7 @@ generate/load female uniform sprites matching all previously decided variables
 	if (!istype(HD))
 		return
 
-	testing("ehadonly [src]")
+
 	HD.update_limb()
 
 	add_overlay(HD.get_limb_icon())

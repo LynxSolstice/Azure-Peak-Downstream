@@ -41,6 +41,10 @@
 	name = "Ahoge"
 	icon_state = "antenna"
 
+/datum/sprite_accessory/hair/head/astolfo
+	name = "Astolfo"
+	icon_state = "astolfo"
+
 /datum/sprite_accessory/hair/head/balding
 	name = "Balding Hair"
 	icon_state = "balding"
@@ -874,6 +878,10 @@
 	name = "Single Braid"
 	icon_state = "singlebraid"
 
+/datum/sprite_accessory/hair/head/ghast
+	name = "Ghastly"
+	icon_state = "ghastly"
+
 /datum/sprite_accessory/hair/head/gloomy
 	name = "Gloomy"
 	icon_state = "gloomy"
@@ -949,6 +957,10 @@
 /datum/sprite_accessory/hair/head/kobeni_2
 	name = "Kobeni (Alt)"
 	icon_state = "kobeni_2"
+
+/datum/sprite_accessory/hair/head/kobeni_tail
+	name = "Kobeni (Ponytail)"
+	icon_state = "kobeni_tail"
 
 /datum/sprite_accessory/hair/head/gloomy_short
 	name = "Gloomy (Short)"

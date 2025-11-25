@@ -6,149 +6,157 @@
 	total_positions = 1
 	spawn_positions = 1
 
-	allowed_races = RACES_ALL_KINDS
+	allowed_races = ACCEPTED_RACES
 
 	tutorial = "Servitude unto death; that is your motto. You are the manor's major-domo, commanding over the house servants and seeing to the administrative affairs, day to day of the estate. This role has style options for chief butlers and head maids."
 	outfit = /datum/outfit/job/roguetown/seneschal
 	advclass_cat_rolls = list(CTAG_SENESCHAL = 20)
 	display_order = JDO_BUTLER
-	give_bank_account = 30
+	give_bank_account = TRUE
 	min_pq = 3
 	max_pq = null
 	round_contrib_points = 3
+	job_subclasses = list(
+		/datum/advclass/seneschal/seneschal,
+		/datum/advclass/seneschal/headmaid,
+		/datum/advclass/seneschal/chiefbutler
+	)
+	spells = list(/obj/effect/proc_holder/spell/invoked/takeapprentice)
 
-/datum/job/roguetown/butler/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
-	. = ..()
-	if(ishuman(L))
-		var/mob/living/carbon/human/H = L
-		H.advsetup = 1
-		H.invisibility = INVISIBILITY_MAXIMUM
-		H.become_blind("advsetup") // Classes are for aesthetic clothing only, mechanically they're identical.
+/datum/advclass/seneschal
+	traits_applied = list(TRAIT_CICERONE, TRAIT_HOMESTEAD_EXPERT, TRAIT_SEWING_EXPERT, TRAIT_ROYALSERVANT) // They have Expert Sewing
+	category_tags = list(CTAG_SENESCHAL)
 
 /datum/advclass/seneschal/seneschal
 	name = "Seneschal"
 	tutorial = "While still expected to fill in for the duties of the household servantry as needed, you have styled yourself as a figure beyond them."
 	outfit = /datum/outfit/job/roguetown/seneschal/seneschal
-	category_tags = list(CTAG_SENESCHAL)
+	subclass_stats = list(
+		STATKEY_INT = 2,
+		STATKEY_PER = 2,
+		STATKEY_LCK = 1, // Usual leadership carrot.
+		STATKEY_SPD = 1
+	)
+	subclass_skills = list(
+		/datum/skill/combat/knives = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/reading = SKILL_LEVEL_EXPERT,
+		/datum/skill/craft/cooking = SKILL_LEVEL_EXPERT,
+		/datum/skill/misc/medicine = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/craft/sewing = SKILL_LEVEL_EXPERT,
+		/datum/skill/craft/crafting = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/sneaking = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/stealing = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/lockpicking = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/misc/climbing = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/labor/farming = SKILL_LEVEL_APPRENTICE,
+	)
+
+/datum/outfit/job/roguetown/seneschal
+	has_loadout = TRUE
+
+//This applies to all Seneschal subclasses
+/datum/outfit/job/roguetown/seneschal/choose_loadout(mob/living/carbon/human/H)
+	. = ..()
+	if(H.age == AGE_MIDDLEAGED)
+		H.adjust_skillrank(/datum/skill/craft/cooking, 1, TRUE)
+		H.adjust_skillrank(/datum/skill/combat/knives, 1, TRUE)
+		H.adjust_skillrank(/datum/skill/labor/farming, 1, TRUE)
+	if(H.age == AGE_OLD)
+		H.adjust_skillrank(/datum/skill/craft/cooking, 2, TRUE)
+		H.adjust_skillrank(/datum/skill/combat/knives, 1, TRUE)
+		H.adjust_skillrank(/datum/skill/labor/farming, 1, TRUE)
+		H.adjust_skillrank(/datum/skill/misc/medicine, 1, TRUE)
 
 /datum/outfit/job/roguetown/seneschal/seneschal/pre_equip(mob/living/carbon/human/H)
 	..()
 	pants = /obj/item/clothing/under/roguetown/tights
 	shirt = /obj/item/clothing/suit/roguetown/shirt/undershirt/guard
 	shoes = /obj/item/clothing/shoes/roguetown/shortboots
+	saiga_shoes = /obj/item/clothing/shoes/roguetown/horseshoes
 	backl = /obj/item/storage/backpack/rogue/satchel
 	belt = /obj/item/storage/belt/rogue/leather
 	beltr = /obj/item/storage/keyring/servant
 	beltl = /obj/item/storage/belt/rogue/pouch/coins/mid
 	id = /obj/item/scomstone/bad
-	if(should_wear_femme_clothes(H)) 
+	if(should_wear_femme_clothes(H))
 		armor = /obj/item/clothing/suit/roguetown/armor/silkcoat
-	H.adjust_skillrank(/datum/skill/combat/knives, 3, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/reading, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/craft/cooking, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/medicine, 3, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/sewing, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/craft/crafting, 3, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/sneaking, 3, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/stealing, 3, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/lockpicking, 2, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/climbing, 2, TRUE)
-	if(H.age == AGE_MIDDLEAGED)
-		H.adjust_skillrank(/datum/skill/craft/cooking, 1, TRUE)
-		H.adjust_skillrank(/datum/skill/combat/knives, 1, TRUE)
-		H.adjust_skillrank(/datum/skill/labor/farming, 1, TRUE)
-	if(H.age == AGE_OLD)
-		H.adjust_skillrank(/datum/skill/craft/cooking, 2, TRUE)
-		H.adjust_skillrank(/datum/skill/combat/knives, 1, TRUE)
-		H.adjust_skillrank(/datum/skill/labor/farming, 1, TRUE)
-		H.adjust_skillrank(/datum/skill/misc/medicine, 1, TRUE)
-	H.change_stat("speed", 1)
-	H.change_stat("intelligence", 2)
-	H.change_stat("perception", 2)
-	H.change_stat("fortune", 1) // Usual leadership carrot.
-	ADD_TRAIT(H, TRAIT_CICERONE, TRAIT_GENERIC)
+	if(H.mind)
+		SStreasury.give_money_account(ECONOMIC_UPPER_MIDDLE_CLASS, H, "Savings.")
 
 /datum/advclass/seneschal/headmaid
 	name = "Head Maid"
 	tutorial = "Whether you were promoted from one or just like the frills, you stylize yourself as a head maid. Your duties and talents remain the same, though."
 	outfit = /datum/outfit/job/roguetown/seneschal/headmaid
-	category_tags = list(CTAG_SENESCHAL)
+	subclass_stats = list(
+		STATKEY_INT = 2,
+		STATKEY_PER = 2,
+		STATKEY_LCK = 1, // Usual leadership carrot.
+		STATKEY_SPD = 1
+	)
+	subclass_skills = list(
+		/datum/skill/combat/knives = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/reading = SKILL_LEVEL_EXPERT,
+		/datum/skill/craft/cooking = SKILL_LEVEL_EXPERT,
+		/datum/skill/misc/medicine = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/craft/sewing = SKILL_LEVEL_EXPERT,
+		/datum/skill/craft/crafting = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/sneaking = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/stealing = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/lockpicking = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/misc/climbing = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/labor/farming = SKILL_LEVEL_APPRENTICE,
+	)
 
 /datum/outfit/job/roguetown/seneschal/headmaid/pre_equip(mob/living/carbon/human/H)
 	..()
-	armor = /obj/item/clothing/suit/roguetown/shirt/dress/gen
-	armor = /obj/item/clothing/suit/roguetown/shirt/dress/gen/black
+	head = /obj/item/clothing/head/roguetown/maidhead
+	armor = /obj/item/clothing/suit/roguetown/shirt/dress/maid
+	cloak = /obj/item/clothing/cloak/apron/waist/maid
 	shoes = /obj/item/clothing/shoes/roguetown/simpleshoes
-	cloak = /obj/item/clothing/cloak/apron/waist
+	saiga_shoes = /obj/item/clothing/shoes/roguetown/horseshoes
 	backl = /obj/item/storage/backpack/rogue/satchel
-	belt = /obj/item/storage/belt/rogue/leather
+	belt = /obj/item/storage/belt/rogue/leather/sash/maid
 	beltr = /obj/item/storage/keyring/servant
 	beltl = /obj/item/storage/belt/rogue/pouch/coins/mid
 	id = /obj/item/scomstone/bad
-	H.adjust_skillrank(/datum/skill/combat/knives, 3, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/reading, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/craft/cooking, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/medicine, 3, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/sewing, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/craft/crafting, 3, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/sneaking, 3, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/stealing, 3, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/lockpicking, 2, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/climbing, 2, TRUE)
-	if(H.age == AGE_MIDDLEAGED)
-		H.adjust_skillrank(/datum/skill/craft/cooking, 1, TRUE)
-		H.adjust_skillrank(/datum/skill/combat/knives, 1, TRUE)
-		H.adjust_skillrank(/datum/skill/labor/farming, 1, TRUE)
-	if(H.age == AGE_OLD)
-		H.adjust_skillrank(/datum/skill/craft/cooking, 2, TRUE)
-		H.adjust_skillrank(/datum/skill/combat/knives, 1, TRUE)
-		H.adjust_skillrank(/datum/skill/labor/farming, 1, TRUE)
-		H.adjust_skillrank(/datum/skill/misc/medicine, 1, TRUE)
-	H.change_stat("speed", 1)
-	H.change_stat("intelligence", 2)
-	H.change_stat("perception", 2)
-	H.change_stat("fortune", 1) // Usual leadership carrot.
-	ADD_TRAIT(H, TRAIT_CICERONE, TRAIT_GENERIC)
+	if(H.mind)
+		SStreasury.give_money_account(ECONOMIC_UPPER_MIDDLE_CLASS, H, "Savings.")
 
 /datum/advclass/seneschal/chiefbutler
 	name = "Chief Butler"
 	tutorial = "You are the ruling class of butler and your ability to clear your throat and murmur 'I say' is without peer. Your duties and talents as seneschal remain the same, though."
 	outfit = /datum/outfit/job/roguetown/seneschal/chiefbutler
-	category_tags = list(CTAG_SENESCHAL)
+	subclass_stats = list(
+		STATKEY_INT = 2,
+		STATKEY_PER = 2,
+		STATKEY_LCK = 1, // Usual leadership carrot.
+		STATKEY_SPD = 1
+	)
+	subclass_skills = list(
+		/datum/skill/combat/knives = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/reading = SKILL_LEVEL_EXPERT,
+		/datum/skill/craft/cooking = SKILL_LEVEL_EXPERT,
+		/datum/skill/misc/medicine = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/craft/sewing = SKILL_LEVEL_EXPERT,
+		/datum/skill/craft/crafting = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/sneaking = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/stealing = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/lockpicking = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/misc/climbing = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/labor/farming = SKILL_LEVEL_APPRENTICE,
+	)
 
 /datum/outfit/job/roguetown/seneschal/chiefbutler/pre_equip(mob/living/carbon/human/H)
 	..() // They need a monocle.
 	pants = /obj/item/clothing/under/roguetown/tights/black
 	shirt = /obj/item/clothing/suit/roguetown/shirt/undershirt
 	shoes = /obj/item/clothing/shoes/roguetown/shortboots
+	saiga_shoes = /obj/item/clothing/shoes/roguetown/horseshoes
 	backl = /obj/item/storage/backpack/rogue/satchel
 	belt = /obj/item/storage/belt/rogue/leather
 	beltr = /obj/item/storage/keyring/servant
 	beltl = /obj/item/storage/belt/rogue/pouch/coins/mid
 	armor = /obj/item/clothing/suit/roguetown/armor/leather/vest/black
 	id = /obj/item/scomstone/bad
-	H.adjust_skillrank(/datum/skill/combat/knives, 3, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/reading, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/craft/cooking, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/medicine, 3, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/sewing, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/craft/crafting, 3, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/sneaking, 3, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/stealing, 3, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/lockpicking, 2, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/climbing, 2, TRUE)
-	if(H.age == AGE_MIDDLEAGED)
-		H.adjust_skillrank(/datum/skill/craft/cooking, 1, TRUE)
-		H.adjust_skillrank(/datum/skill/combat/knives, 1, TRUE)
-		H.adjust_skillrank(/datum/skill/labor/farming, 1, TRUE)
-	if(H.age == AGE_OLD)
-		H.adjust_skillrank(/datum/skill/craft/cooking, 2, TRUE)
-		H.adjust_skillrank(/datum/skill/combat/knives, 1, TRUE)
-		H.adjust_skillrank(/datum/skill/labor/farming, 1, TRUE)
-		H.adjust_skillrank(/datum/skill/misc/medicine, 1, TRUE)
-	H.change_stat("speed", 1)
-	H.change_stat("intelligence", 2)
-	H.change_stat("perception", 2)
-	H.change_stat("fortune", 1) // Usual leadership carrot.
-	ADD_TRAIT(H, TRAIT_CICERONE, TRAIT_GENERIC)
-
+	if(H.mind)
+		SStreasury.give_money_account(ECONOMIC_UPPER_MIDDLE_CLASS, H, "Savings.")

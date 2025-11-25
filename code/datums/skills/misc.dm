@@ -22,8 +22,8 @@
 	expert_name = "Climber"
 
 /datum/skill/misc/reading
-	name = "Reading"
-	desc = "Increases your chance to read a spellbook successfully by 2% per level. Minimum of 1 is required to be literate and read various things."
+	name = "Literacy"
+	desc = "Increases your chance to read a spellbook successfully by 2% per level. Also raises your ability to write and comprehend skillbooks. Minimum of 1 is required to be literate and read various things."
 	dreams = list(
 		"...amidst the void, strange symbols and glyphs make their way into your mind. They re-arrange themselves unceasingly, indecipherable truths speaking in silent voices. The clouds part, and they fall still within the moonlight. The meaning of the gift is revealed...",
 		"...you cut into your meal, juices leaking from the edges of the book. Your mind expands throughout your meal, and you are about halfway through the meal when an old, bearded chef asks you how you like his specialty..."
@@ -37,7 +37,7 @@
 		"...there is no light in the suffocating dark. You choose a direction and your arms and legs tear at the thick, oily waters in a desperate attempt to reach the surface. Your heart pounds, and your body yearns for another breath...",
 		"...a wave rocks to the side of the boat, and you tumble into the yawning abyss. Lightning splits the sky as the old captain hurls a buoy into the churning sea. Salt water burns your lungs as you thrash and claw, struggling towards your lifeline...",
 		"...the current  the beach draws you out further into the ocean, relentless and fast. Your muscles burn as you struggle, every stroke a battle. 'Across, not against!' a voice from your past chides, guiding you as you break free of the riptide's grasp..."
-		
+
 	)
 	expert_name = "Swimmer"
 
@@ -100,15 +100,8 @@
 		"...a student to your left pales, her queasiness overwhelming before she faints. You steel yourself, and look at the voidlike ribcage in the torso before you. Well-preserved chunks of flesh lie beside it, waiting for you to restore them to their rightful places..."
 	)
 	expert_name = "Barber"
-
-/datum/skill/misc/sewing
-	name = "Sewing"
-	desc = "Determines whether you can craft various sewing-related items and repair them."
-	dreams = list(
-		"...as the years go by, the mantra becomes increasingly oppressive. Stitch, sew, cut ties, stitch, sew, thread the needle twice...",
-		"...you turn over the fabric, and within the two layers of the gown, you hide a secret stitched into the gown, your initials, hidden within. A forbidden mark in some cultures... you never liked the bride much..."
-	)
-	expert_name = "Sewer"
+	max_untraited_level = SKILL_LEVEL_EXPERT // We'll let people get to Expert as an exception because reviving someone is very important to keep players in round
+	trait_uncap = list(TRAIT_MEDICINE_EXPERT = SKILL_LEVEL_LEGENDARY)
 
 /datum/skill/misc/tracking
 	name = "Tracking"
@@ -121,13 +114,3 @@
 		"... the blood may have gotten lost in the rain, but the wounded man's boots are as fresh as jackberries, perfectly marked in the sand. You raise your bow, nock an arrow, and carefully trace them towards a cave..."
 	)
 	expert_name = "Tracker"
-
-
-/datum/skill/misc/ceramics
-	name = "Pottery"
-	desc = "Handles crafting and making of clay into vases and other fine-craft works."
-	dreams = list(
-		"...the wheel spins, and spins.. yet you watch as a work of art grows from its center...",
-		"...a slab of clay is molded into a beautiful statue. A testiment to Malum's blessings, and Xylix's insperation. A pure work of beauty..."
-	)
-	expert_name = "Potter"

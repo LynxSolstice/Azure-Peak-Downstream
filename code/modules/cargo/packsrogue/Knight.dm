@@ -86,6 +86,11 @@
 	cost = 40
 	contains = list(/obj/item/clothing/suit/roguetown/armor/chainmail/hauberk)
 
+/datum/supply_pack/rogue/Knight/hgambeson
+	name = "Padded Gambeson"
+	cost = 20
+	contains = list(/obj/item/clothing/suit/roguetown/armor/gambeson/heavy)
+
 /datum/supply_pack/rogue/Knight/Fullplate
 	name = "Steel Full plate"
 	cost = 60
@@ -99,12 +104,12 @@
 /datum/supply_pack/rogue/Knight/mblacksteelfullplate
 	name = "Blacksteel Full plate"
 	cost = 150
-	contains = list(/obj/item/clothing/suit/roguetown/armor/plate/modern/blacksteel_full_plate)
+	contains = list(/obj/item/clothing/suit/roguetown/armor/plate/full/blacksteel/modern)
 
 /datum/supply_pack/rogue/Knight/blacksteelfullplate
 	name = "Ancient Blacksteel Full plate"
 	cost = 150
-	contains = list(/obj/item/clothing/suit/roguetown/armor/plate/blacksteel_full_plate)
+	contains = list(/obj/item/clothing/suit/roguetown/armor/plate/full/blacksteel)
 
 ///////////////////
 // WRISTS/GLOVES //
@@ -187,6 +192,11 @@
 	name = "Steel Zweihander"
 	cost = 60
 	contains = list(/obj/item/rogueweapon/greatsword/grenz)
+
+/datum/supply_pack/rogue/Knight/SFlamberge
+	name = "Steel Flamberge"
+	cost = 60
+	contains = list(/obj/item/rogueweapon/greatsword/grenz/flamberge)
 
 /datum/supply_pack/rogue/Knight/greatsword
 	name = "Greatsword"

@@ -41,7 +41,7 @@
 /datum/supply_pack/rogue/Things/gwstrap
 	name = "Greatweapon Strap"
 	cost = 15
-	contains = list(/obj/item/gwstrap)
+	contains = list(/obj/item/rogueweapon/scabbard/gwstrap)
 
 /////////////
 // POTIONS //
@@ -108,4 +108,29 @@
 /datum/supply_pack/rogue/Things/smokebomb
 	name = "Smoke Bomb"
 	cost = 30
-	contains = list(/obj/item/smokebomb)
+	contains = list(/obj/item/bomb/smoke)
+
+/datum/supply_pack/rogue/Things/satchel
+	name = "Satchel"
+	cost = 5
+	contains = list(/obj/item/storage/backpack/rogue/satchel)
+
+/datum/supply_pack/rogue/Things/backpack
+	name = "Backpack"
+	cost = 15
+	contains = list(/obj/item/storage/backpack/rogue/backpack)
+
+/datum/supply_pack/rogue/Things/belt
+	name = "Leather Belt"
+	cost = 5
+	contains = list(/obj/item/storage/belt/rogue/leather)
+
+/datum/supply_pack/rogue/Things/clotchkit
+	name = "Sewing Kit"
+	cost = 30
+	contains = list(/obj/item/repair_kit)
+
+/datum/supply_pack/rogue/Things/metalkit
+	name = "Armor Plate"
+	cost = 50
+	contains = list(/obj/item/repair_kit/metal)

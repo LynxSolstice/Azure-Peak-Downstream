@@ -9,6 +9,9 @@
 
 	..()
 
+	if(client)
+		client.update_ooc_verb_visibility()
+
 	sight |= SEE_TURFS
 
 	addtimer(CALLBACK(src, PROC_REF(do_after_login)), 4 SECONDS)
@@ -48,7 +51,6 @@
 			if(5)
 				shown_patreon_level = "Lord"
 		to_chat(src, span_info("Donator Level: [shown_patreon_level]"))
-	client.recent_changelog()
 
 	if(GLOB.admin_notice)
 		to_chat(src, span_notice("<b>Admin Notice:</b>\n \t [GLOB.admin_notice]"))

@@ -14,7 +14,7 @@ GLOBAL_LIST_INIT(dwarfskeleton_aggro, world.file2list("strings/rt/dskeletonaggro
 	a_intent = INTENT_HELP
 	d_intent = INTENT_PARRY //even in undeath dwarves parry. Dodging aint proper dorf behavior
 	selected_default_language = /datum/language/dwarvish
-	possible_mmb_intents = list(INTENT_BITE, INTENT_JUMP, INTENT_KICK, INTENT_STEAL) //intents given in case of player controlled
+	possible_mmb_intents = list(INTENT_BITE, INTENT_JUMP, INTENT_KICK, INTENT_SPECIAL) //intents given in case of player controlled
 	possible_rmb_intents = list(/datum/rmb_intent/feint, /datum/rmb_intent/aimed, /datum/rmb_intent/strong, /datum/rmb_intent/weak)
 
 /mob/living/carbon/human/species/dwarfskeleton/ambush
@@ -25,7 +25,7 @@ GLOBAL_LIST_INIT(dwarfskeleton_aggro, world.file2list("strings/rt/dskeletonaggro
 	.=..()
 	if(prob(5))
 		say(pick(GLOB.dwarfskeleton_aggro))
-		linepoint(target)
+		pointed(target)
 
 /mob/living/carbon/human/species/dwarfskeleton/Initialize()
 	. = ..()
@@ -47,7 +47,7 @@ GLOBAL_LIST_INIT(dwarfskeleton_aggro, world.file2list("strings/rt/dskeletonaggro
 	ADD_TRAIT(src, TRAIT_NOHUNGER, TRAIT_GENERIC)
 	ADD_TRAIT(src, TRAIT_EASYDISMEMBER, TRAIT_GENERIC)
 	ADD_TRAIT(src, TRAIT_NOBREATH, TRAIT_GENERIC)
-	ADD_TRAIT(src, TRAIT_INFINITE_ENERGY, TRAIT_GENERIC) // We're moving away from infinite green, even on skeletons.
+	ADD_TRAIT(src, TRAIT_BREADY, TRAIT_GENERIC) // We're moving away from infinite green, even on skeletons.
 	ADD_TRAIT(src, TRAIT_NOPAIN, TRAIT_GENERIC)
 	ADD_TRAIT(src, TRAIT_TOXIMMUNE, TRAIT_GENERIC)
 	ADD_TRAIT(src, TRAIT_LEECHIMMUNE, INNATE_TRAIT)
@@ -75,7 +75,7 @@ GLOBAL_LIST_INIT(dwarfskeleton_aggro, world.file2list("strings/rt/dskeletonaggro
 	if(prob(50))
 		cloak = /obj/item/clothing/cloak/raincloak/mortus
 	wrists = /obj/item/clothing/wrists/roguetown/bracers/copper
-	armor = /obj/item/clothing/suit/roguetown/armor/plate/half/copper
+	armor = /obj/item/clothing/suit/roguetown/armor/plate/cuirass/copper
 	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy
 	if(prob(60))
 		shirt = /obj/item/clothing/suit/roguetown/armor/gambeson
@@ -105,7 +105,7 @@ GLOBAL_LIST_INIT(dwarfskeleton_aggro, world.file2list("strings/rt/dskeletonaggro
 	H.STASTR = 12
 	H.STASPD = 11
 	H.STACON = 12
-	H.STAEND = 12
+	H.STAWIL = 12
 	H.STAPER = 14
 	H.STAINT = 11
 	H.adjust_skillrank(/datum/skill/combat/polearms, 3, TRUE)
@@ -139,7 +139,7 @@ GLOBAL_LIST_INIT(dwarfskeleton_aggro, world.file2list("strings/rt/dskeletonaggro
 	H.STASTR = 16
 	H.STASPD = 11
 	H.STACON = 14
-	H.STAEND = 14
+	H.STAWIL = 14
 	H.STAPER = 14
 	H.STAINT = 11
 	H.adjust_skillrank(/datum/skill/combat/polearms, 4, TRUE)

@@ -99,14 +99,6 @@
 		prefs.save_preferences()
 		winset(src, "infowindow.changelog", "font-style=;")
 
-/client/verb/recent_changelog()
-	set name = "Recent Changes"
-	set category = "OOC"
-	if(GLOB.changelog.len)
-		to_chat(src, "Recent Changes:")
-		for(var/change in GLOB.changelog)
-			to_chat(src, span_info("- [change]"))
-
 /client/verb/hotkeys_help()
 	set name = "_Help-Controls"
 	set category = "OOC"
@@ -260,6 +252,18 @@ Hotkey-Mode: (hotkey-mode must be on)
 		prefs.clientfps = clamp(newfps, 1, 1000)
 		fps = prefs.clientfps
 		prefs.save_preferences()
+
+/client/verb/set_picinchat()
+	set name = "Headshot in Chat"
+	set category = "Options"
+
+	if(prefs)
+		prefs.chatheadshot = !prefs.chatheadshot
+		prefs.save_preferences()
+		if(prefs.chatheadshot)
+			to_chat(src, "Headshot in chat Enabled")
+		else
+			to_chat(src, "Headshot in chat Disabled")
 
 /*
 /client/verb/set_blur()

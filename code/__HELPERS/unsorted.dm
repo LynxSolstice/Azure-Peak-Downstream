@@ -238,10 +238,10 @@ Turf and target are separate in case you want to teleport some distance from a t
 			continue
 		if(M.client && M.client.holder && M.client.holder.fakekey) //stealthmins
 			continue
-		var/name = avoid_assoc_duplicate_keys(M.name, namecounts)
+		var/name = avoid_assoc_duplicate_keys(M.real_name, namecounts)
 
 		if(M.real_name && M.real_name != M.name)
-			name += " \[[M.real_name]\]"
+			name += " \[[M.name]\]"
 		if(M.stat == DEAD)
 			continue
 		pois[name] = M
@@ -251,7 +251,7 @@ Turf and target are separate in case you want to teleport some distance from a t
 			if(!A || !A.loc)
 				continue
 			pois[avoid_assoc_duplicate_keys(A.name, namecounts)] = A
-
+	pois = sort_list(pois)
 	return pois
 //Orders mobs by type then by name
 /proc/sortmobs()
@@ -406,7 +406,7 @@ Turf and target are separate in case you want to teleport some distance from a t
 	var/turf/target_turf = get_turf(target)
 	if (get_dist(source, target) > length) //If further than the length/dist then we can assume false
 		return FALSE
-	if(current == target_turf)	
+	if(current == target_turf)
 		return TRUE
 
 	var/steps = 1
@@ -733,7 +733,6 @@ will handle it, but:
 Checks if that loc and dir has an item on the wall
 */
 GLOBAL_LIST_INIT(WALLITEMS, typecacheof(list(
-	/obj/structure/noticeboard,
 	/obj/structure/mirror,
 	/obj/structure/fireaxecabinet,
 	)))
@@ -1027,28 +1026,40 @@ rough example of the "cone" made by the 3 dirs checked
 		for(x in x to t_center.x+c_dist)
 			T = locate(x,y,t_center.z)
 			if(T)
-				L += T
+				if(istype(T, /turf/closed/wall/mineral/rogue/stone/unbreakable)||istype(T, /turf/closed/mineral/rogue/bedrock))
+					continue //if its unbreakable or bedrock, we skip this one
+				else
+					L += T
 
 		y = t_center.y + c_dist - 1
 		x = t_center.x + c_dist
 		for(y in t_center.y-c_dist to y)
 			T = locate(x,y,t_center.z)
 			if(T)
-				L += T
+				if(istype(T, /turf/closed/wall/mineral/rogue/stone/unbreakable)||istype(T, /turf/closed/mineral/rogue/bedrock))
+					continue //if its unbreakable or bedrock, we skip this one
+				else
+					L += T
 
 		y = t_center.y - c_dist
 		x = t_center.x + c_dist - 1
 		for(x in t_center.x-c_dist to x)
 			T = locate(x,y,t_center.z)
 			if(T)
-				L += T
+				if(istype(T, /turf/closed/wall/mineral/rogue/stone/unbreakable)||istype(T, /turf/closed/mineral/rogue/bedrock))
+					continue //if its unbreakable or bedrock, we skip this one
+				else
+					L += T
 
 		y = t_center.y - c_dist + 1
 		x = t_center.x - c_dist
 		for(y in y to t_center.y+c_dist)
 			T = locate(x,y,t_center.z)
 			if(T)
-				L += T
+				if(istype(T, /turf/closed/wall/mineral/rogue/stone/unbreakable)||istype(T, /turf/closed/mineral/rogue/bedrock))
+					continue //if its unbreakable or bedrock, we skip this one
+				else
+					L += T
 		c_dist++
 		if(tick_checked)
 			CHECK_TICK
@@ -1304,17 +1315,6 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 /proc/do_atom(atom/movable/user , atom/movable/target, time = 30, uninterruptible = 0,datum/callback/extra_checks = null)
 	if(!user || !target)
 		return TRUE
-	var/user_loc = user.loc
-
-	var/drifting = FALSE
-	if(!user.Process_Spacemove(0) && user.inertia_dir)
-		drifting = TRUE
-
-	var/target_drifting = FALSE
-	if(!target.Process_Spacemove(0) && target.inertia_dir)
-		target_drifting = TRUE
-
-	var/target_loc = target.loc
 
 	var/endtime = world.time+time
 	. = TRUE
@@ -1326,15 +1326,7 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 		if(uninterruptible)
 			continue
 
-		if(drifting && !user.inertia_dir)
-			drifting = FALSE
-			user_loc = user.loc
-
-		if(target_drifting && !target.inertia_dir)
-			target_drifting = FALSE
-			target_loc = target.loc
-
-		if((!drifting && user.loc != user_loc) || (!target_drifting && target.loc != target_loc) || (extra_checks && !extra_checks.Invoke()))
+		if((extra_checks && !extra_checks.Invoke()))
 			. = FALSE
 			break
 
@@ -1444,49 +1436,6 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 		)
 
 	return pick(subtypesof(/obj/item/reagent_containers/food/snacks) - blocked)
-
-//For these two procs refs MUST be ref = TRUE format like typecaches!
-/proc/weakref_filter_list(list/things, list/refs)
-	if(!islist(things) || !islist(refs))
-		return
-	if(!refs.len)
-		return things
-	if(things.len > refs.len)
-		var/list/f = list()
-		for(var/i in refs)
-			var/datum/weakref/r = i
-			var/datum/d = r.resolve()
-			if(d)
-				f |= d
-		return things & f
-
-	else
-		. = list()
-		for(var/i in things)
-			if(!refs[WEAKREF(i)])
-				continue
-			. |= i
-
-/proc/weakref_filter_list_reverse(list/things, list/refs)
-	if(!islist(things) || !islist(refs))
-		return
-	if(!refs.len)
-		return things
-	if(things.len > refs.len)
-		var/list/f = list()
-		for(var/i in refs)
-			var/datum/weakref/r = i
-			var/datum/d = r.resolve()
-			if(d)
-				f |= d
-
-		return things - f
-	else
-		. = list()
-		for(var/i in things)
-			if(refs[WEAKREF(i)])
-				continue
-			. |= i
 
 /proc/special_list_filter(list/L, datum/callback/condition)
 	if(!islist(L) || !length(L) || !istype(condition))
@@ -1621,3 +1570,56 @@ GLOBAL_LIST_INIT(duplicate_forbidden_vars,list(
 			for(var/atom/contained_atom in M.component_parts)
 				contained_atom.flags_1 |= HOLOGRAM_1
 	return O
+
+#define VALID_HUNTING_AREAS list(\
+	/area/rogue/outdoors/beach/forest, \
+	/area/rogue/outdoors/woods, \
+	/area/rogue/outdoors/bog, \
+	/area/rogue/outdoors/mountains, \
+	/area/rogue/outdoors/rtfield \
+)
+
+/proc/is_valid_hunting_area(area/A)
+	for(var/i in VALID_HUNTING_AREAS)
+		if(istype(A, i))
+			return TRUE
+	return FALSE
+
+/proc/get_actors_by_title(var/title)
+	var/list/actor_data = list()
+	for(var/mob_id in GLOB.actors_list)
+		if(GLOB.actors_list[mob_id]["rank"] != title)
+			continue
+		actor_data += list(list(
+			"data" = GLOB.actors_list[mob_id],
+			"mob_id" = mob_id,
+		))
+	return actor_data
+
+/proc/get_sorted_actors_list()
+	var/list/sorted_ckey_to_actor_data = list()
+	var/list/categories = list(
+		"Nobles" = GLOB.noble_positions,
+		"Courtiers" = GLOB.courtier_positions,
+		"Garrison" = GLOB.garrison_positions,
+		"Church" = GLOB.church_positions,
+		"Inquisition" = GLOB.inquisition_positions,
+		"Yeoman" = GLOB.yeoman_positions,
+		"Peasant" = GLOB.peasant_positions,
+		"Youngfolk" = GLOB.youngfolk_positions,
+		"Wanderer" = GLOB.wanderer_positions,
+	)
+
+	for(var/category in categories)
+		for(var/role in categories[category])
+			var/list/actor_data = get_actors_by_title(role)
+			for(var/actor in actor_data)
+				sorted_ckey_to_actor_data[actor["mob_id"]] = list("data" = actor["data"], "category" = category)
+
+	for(var/mob_id in GLOB.actors_list)
+		var/list/actor_data = GLOB.actors_list[mob_id]
+		if(!sorted_ckey_to_actor_data[mob_id])
+			sorted_ckey_to_actor_data[mob_id] = list("data" = actor_data, "category" = "Nobodies")
+
+	return sorted_ckey_to_actor_data
+

@@ -2,15 +2,17 @@
 	max_stamina = max_energy / 10
 
 	var/delay = 20
-	if(HAS_TRAIT(src, TRAIT_APRICITY)) 
-		switch(GLOB.tod) 
-			if("day", "dawn") 
-				delay = 13 
+	if(HAS_TRAIT(src, TRAIT_APRICITY))
+		switch(GLOB.tod)
+			if("day", "dawn")
+				delay = 13
 			if("night", "dusk")
 				delay = 16
 	if(world.time > last_fatigued + delay) //regen fatigue
 		var/added = energy / max_energy
 		added = round(-10 + (added * - 40))
+		if(src.climbing) // no stam regen while climbing guh
+			added = 0
 		if(HAS_TRAIT(src, TRAIT_MISSING_NOSE))
 			added = round(added * 0.5, 1)
 		if(HAS_TRAIT(src, TRAIT_MONK_ROBE))
@@ -25,10 +27,15 @@
 /mob/living/proc/update_energy()
 	var/athletics_skill = 0
 	athletics_skill = get_skill_level(/datum/skill/misc/athletics)
-	max_energy = (STAEND + (athletics_skill/2 ) ) * 100
+	max_energy = (STAWIL + (athletics_skill/2 ) ) * 100
 	if(cmode)
 		if(!HAS_TRAIT(src, TRAIT_BREADY))
 			energy_add(-2)
+	if(HAS_TRAIT(src, TRAIT_INFINITE_ENERGY))
+		energy = max_energy
+	if(HAS_TRAIT(src, TRAIT_BREADY))
+		energy_add(4) // Battle Ready now gives you a small amount of regeneration.
+		// This generally cover most reasonable in combat usage.
 
 /mob/proc/energy_add(added as num)
 	return
@@ -36,12 +43,8 @@
 /mob/living/energy_add(added as num)
 	if(HAS_TRAIT(src, TRAIT_INFINITE_STAMINA))
 		return TRUE
-	//if(HAS_TRAIT(src, TRAIT_NOSLEEP))
-	//	return TRUE
 	if(HAS_TRAIT(src, TRAIT_INFINITE_ENERGY))
 		return TRUE
-	if(m_intent == MOVE_INTENT_RUN && isnull(buckled))
-		mind && mind.add_sleep_experience(/datum/skill/misc/athletics, (STAINT*0.02))
 	energy += added
 	if(energy > max_energy)
 		energy = max_energy
@@ -88,7 +91,7 @@
 	if (athletics_skill)
 		var/athletics_bonus = athletics_skill * 0.05 //each rank of athletics gives us 5% less nutrition loss
 		nutrition_amount *= (1 - athletics_bonus)
-	
+
 	if (nutrition >= NUTRITION_LEVEL_WELL_FED) // we've only just eaten recently so just flat out reduce the total loss by half
 		nutrition_amount *= 0.5
 
@@ -102,6 +105,12 @@
 		return TRUE
 	if(HAS_TRAIT(src, TRAIT_FORTITUDE))
 		added = added * 0.5
+
+	if(added < 0 && HAS_TRAIT(src, TRAIT_FROZEN_STAMINA))
+		added = 0
+	if(m_intent == MOVE_INTENT_RUN && isnull(buckled) && (mobility_flags & MOBILITY_STAND))
+		mind && mind.add_sleep_experience(/datum/skill/misc/athletics, (STAINT*0.05))
+
 	stamina = CLAMP(stamina+added, 0, max_stamina)
 	if(added > 0)
 		energy_add(added * -1)
@@ -115,6 +124,30 @@
 						if(C.hydration <= 0)
 							C.heart_attack()
 							return FALSE
+
+	if(ishuman(src) && mind && added > 0)
+		var/mob/living/carbon/human/H = src
+		var/text
+		var/x_offset = 20
+		var/y_offset
+		var/stamratio = stamina / max_stamina
+		if(stamratio >= 0.25 && ((stamina - added) / max_stamina) < 0.25)
+			text = "<font color = '#a8af9b'>Winded</font>"
+			y_offset = BALLOON_Y_OFFSET_TIER1
+		if(stamratio >= 0.5 && ((stamina - added) / max_stamina) < 0.5)
+			text = "<font color = '#d4d36c'>Drained</font>"
+			y_offset = BALLOON_Y_OFFSET_TIER2
+		if(stamratio >= 0.75 && ((stamina - added) / max_stamina) < 0.75)
+			text = "<font color = '#a8665a'>Fatigued</font>"
+			y_offset = BALLOON_Y_OFFSET_TIER3
+		if(text)
+			if(!HAS_TRAIT(H, TRAIT_DECEIVING_MEEKNESS))
+				H.filtered_balloon_alert(TRAIT_COMBAT_AWARE, text, x_offset, y_offset)
+			else
+				if(prob(10))
+					text = "<i>Tired...?</i>"
+					H.filtered_balloon_alert(TRAIT_COMBAT_AWARE, text, x_offset, y_offset)
+
 	if(stamina >= max_stamina)
 		stamina = max_stamina
 		update_health_hud()
@@ -129,6 +162,12 @@
 		stop_attack()
 		changeNext_move(CLICK_CD_EXHAUSTED)
 		flash_fullscreen("blackflash")
+
+		if(ishuman(src))
+			var/mob/living/carbon/human/H = src
+			var/balloon_text = "<font color = '#bb2b2b'>Exhausted... </font>"
+			H.balloon_alert_to_viewers(balloon_text, balloon_text, DEFAULT_MESSAGE_RANGE)
+
 		if(energy <= 0)
 			addtimer(CALLBACK(src, PROC_REF(Knockdown), 30), 1 SECONDS)
 		addtimer(CALLBACK(src, PROC_REF(Immobilize), 30), 1 SECONDS)

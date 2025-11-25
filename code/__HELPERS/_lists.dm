@@ -18,8 +18,16 @@
 ///Accesses an associative list, returns null if nothing is found
 #define LAZYACCESSASSOC(L, I, K) L ? L[I] ? L[I][K] ? L[I][K] : null : null : null
 #define LAZYADDASSOCLIST(L, K, V) if(!L) { L = list(); } L[K] += list(V);
+
+///Adds to the item K the value V, if the list is null it will initialize it
+#define LAZYADDASSOC(L, K, V) if(!L) { L = list(); } L[K] += list(V);
+
+///Removes the value V from the item K, if the item K is empty will remove it from the list, if the list is empty will set the list to null
+#define LAZYREMOVEASSOC(L, K, V) if(L) { if(L[K]) { L[K] -= V; if(!length(L[K])) L -= K; } if(!length(L)) L = null; }
+
 #define LAZYOR(L, I) if(!L) { L = list(); } L |= I;
 #define LAZYFIND(L, V) L ? L.Find(V) : 0
+#define LAZYISIN(L, V) L ? (V in L) : FALSE
 #define LAZYACCESS(L, I) (L ? (isnum(I) ? (I > 0 && I <= length(L) ? L[I] : null) : L[I]) : null)
 #define LAZYSET(L, K, V) if(!L) { L = list(); } L[K] = V;
 #define LAZYLEN(L) length(L)
@@ -653,7 +661,7 @@
 	var/list/out = list()
 	for(var/key in L)
 		out[key] = ceil(L[key])
-	. = out 
+	. = out
 
 /proc/assoc_list_strip_value(list/input)
 	var/list/ret = list()
@@ -730,4 +738,84 @@ GLOBAL_LIST_EMPTY(string_lists)
 /proc/list_clear_nulls(list/list_to_clear)
 	return (list_to_clear.RemoveAll(null) > 0)
 
+// Insert an object A into a sorted list using cmp_proc (/code/_helpers/cmp.dm) for comparison.
+#define ADD_SORTED(list, A, cmp_proc) if(!list.len) {list.Add(A)} else {list.Insert(FindElementIndex(A, list, cmp_proc), A)}
 
+// Return the index using dichotomic search
+/proc/FindElementIndex(atom/A, list/L, cmp)
+	var/i = 1
+	var/j = L.len
+	var/mid
+
+	while(i < j)
+		mid = round((i+j)/2)
+
+		if(call(cmp)(L[mid],A) < 0)
+			i = mid + 1
+		else
+			j = mid
+
+	if(i == 1 || i ==  L.len) // Edge cases
+		return (call(cmp)(L[i],A) > 0) ? i : i+1
+	else
+		return i
+/// Runtimes if the passed in list is not sorted
+/proc/assert_sorted(list/list, name, cmp = /proc/cmp_numeric_asc)
+	var/last_value = list[1]
+
+	for (var/index in 2 to list.len)
+		var/value = list[index]
+
+		if (call(cmp)(value, last_value) < 0)
+			stack_trace("[name] is not sorted. value at [index] ([value]) is in the wrong place compared to the previous value of [last_value] (when compared to by [cmp])")
+
+		last_value = value
+
+/**
+ * Returns a newline-separated list that counts equal-ish items, outputting count and item names, optionally with icons.
+ */
+/proc/counting_english_list(var/list/input, output_icons = TRUE, nothing_text = "nothing", line_prefix = "\t", first_item_prefix = "\n", last_item_suffix = "\n", and_text = "\n", comma_text = "\n", final_comma_text = "")
+	// Counted input items.
+	var/list/counts = list()
+	// Actual objects for later reference (for icons and formatting).
+	var/list/items = list()
+	// Count items.
+	for(var/item in input)
+		// Index items by name; usually works fairly well for loose equality.
+		var/name = "[item]"
+		if(name in counts)
+			counts[name]++
+		else
+			counts[name] = 1
+			items.Add(item)
+
+	// Assemble the output list.
+	var/list/out = list()
+	var/i = 0
+	for(var/item in items)
+		var/name = "[item]"
+		var/count = counts[name]
+		var/item_str = line_prefix
+
+		if(count > 1)
+			item_str += "[count]x&nbsp;"
+
+		// Atoms use special string conversion rules.
+		if(isatom(item))
+			// atoms/items/objects can be pretty and whatnot.
+			var/atom/A = item
+			// Mobs tend to have unusable icons.
+			if(output_icons && isicon(A.icon) && !ismob(A))
+				item_str += "[icon2html(A, viewers(get_turf(A)))]&nbsp;"
+			item_str += name
+
+		if(i == 0)
+			item_str = first_item_prefix + item_str
+		if(i == items.len - 1)
+			item_str = item_str + last_item_suffix
+
+		out.Add(item_str)
+		i++
+
+	// Finally return the list using regular english_list builder.
+	return english_list(out, nothing_text, and_text, comma_text, final_comma_text)

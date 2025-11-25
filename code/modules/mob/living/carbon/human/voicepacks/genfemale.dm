@@ -115,12 +115,16 @@
 				used = list('sound/vo/fsnap2.ogg')
 			if("snap3")
 				used = list('sound/vo/fsnap3.ogg')
+			if("stomp")
+				used = list('sound/foley/brickdrop.ogg')
 			if("blink")
 				used = list('sound/vo/blink.ogg')
 			if("cackle")
 				used = list('sound/vo/mobs/hyena/cackle.ogg')
 			if("whine")
 				used = list('sound/vo/mobs/vw/whine.ogg')
+			if("psnort")
+				used = list('sound/vo/mobs/dog/pugsnort.ogg')
 			if("roar")
 				used = list('sound/vo/mobs/cat/roar1.ogg', 'sound/vo/mobs/cat/roar2.ogg', 'sound/vo/mobs/cat/roar3.ogg', 'sound/vo/mobs/cat/roar4.ogg')
 			if("howl")
@@ -143,5 +147,7 @@
 				used = 'sound/vo/moth/moth_flutter.ogg'
 			if("strain")
 				used = 'sound/vo/female/gen/strain.ogg'
+			if("yip")
+				used = list('sound/vo/yip.ogg', 'sound/vo/yip2.ogg', 'sound/vo/yip3.ogg')
 
 	return used

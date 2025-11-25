@@ -6,6 +6,22 @@
 /datum/status_effect/incapacitating/off_balanced
 	id = "off_balanced"
 	alert_type = /atom/movable/screen/alert/status_effect/off_balanced
+	mob_effect_icon_state = "eff_offbalanced"
+	mob_effect_offset_y = -4	//We want this shown UNDER the feet of the mob.
+	mob_effect_layer = MOB_EFFECT_LAYER_OFFBALANCED
+
+/datum/status_effect/incapacitating/off_balanced/on_creation(mob/living/new_owner, set_duration, updating_canmove)
+	var/cmode_involved = FALSE
+	if(new_owner.mind)	//We skip bothering with this at all if it's AI
+		for(var/mob/living/L in get_hearers_in_view(5, new_owner))
+			if(L.cmode)
+				cmode_involved = TRUE
+				break
+	else
+		cmode_involved = TRUE
+	//Request by a player to not have it appear if no combat is involved.
+	mob_effect_icon_state = cmode_involved ? initial(mob_effect_icon_state) : null
+	. = ..()
 
 /atom/movable/screen/alert/status_effect/off_balanced
 	name = "Off Balanced"
@@ -111,21 +127,13 @@
 
 /datum/status_effect/bugged/on_apply(mob/living/new_owner, obj/item/listeningdevice/tracker)
 	. = ..()
-	if (.)
-		RegisterSignal(new_owner, COMSIG_MOVABLE_HEAR, PROC_REF(handle_hearing))
 
 /datum/status_effect/bugged/on_remove()
 	..()
-
-	UnregisterSignal(owner, COMSIG_MOVABLE_HEAR)
 	if(device)
 		owner.contents.Remove(device)
 		device.forceMove(owner.loc)
 		owner.put_in_hands(device)
-
-/datum/status_effect/bugged/proc/handle_hearing(datum/source, list/hearing_args)
-//	listening_in.show_message(hearing_args[HEARING_MESSAGE])
-	device.Hear(hearing_args[HEARING_MESSAGE], hearing_args[HEARING_SPEAKER], raw_message = hearing_args[HEARING_RAW_MESSAGE])
 
 /atom/movable/screen/alert/bugged
 	name = "BUGGED"
@@ -164,7 +172,7 @@
 /datum/status_effect/wheel/on_apply()
 	. = ..()
 	wheeleffect = rand(-5,5)
-	owner.change_stat("fortune", wheeleffect)
+	owner.change_stat(STATKEY_LCK, wheeleffect)
 	switch(wheeleffect)
 		if(-5 to -1)
 			to_chat(owner, span_boldnotice("My heart sinks, I feel as though I've lost something!"))
@@ -175,7 +183,7 @@
 
 /datum/status_effect/wheel/on_remove()
 	. = ..()
-	owner.change_stat("fortune", -wheeleffect)
+	owner.change_stat(STATKEY_LCK, -wheeleffect)
 
 /atom/movable/screen/alert/status_effect/wheel
 	name = "Lucky(?)"

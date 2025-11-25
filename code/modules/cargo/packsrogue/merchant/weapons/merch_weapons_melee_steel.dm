@@ -41,6 +41,13 @@
 					/obj/item/rogueweapon/sword/cutlass,
 				)
 
+/datum/supply_pack/rogue/steel_weapons/sword
+	name = "Arming Sword"
+	cost = 40 // 1 Steel Ingot
+	contains = list(
+					/obj/item/rogueweapon/sword,
+				)
+
 /datum/supply_pack/rogue/steel_weapons/shortsword
 	name = "Shortsword"
 	cost = 40 // 1 Steel Ingot
@@ -62,8 +69,6 @@
 					/obj/item/rogueweapon/sword/short/messer,
 				)
 
-// No one order generic sword I CBA
-
 /datum/supply_pack/rogue/steel_weapons/sabre
 	name = "Sabre"
 	cost = 40 // 1 Steel Ingot
@@ -76,6 +81,13 @@
 	cost = 40 // 1 Steel Ingot
 	contains = list(
 					/obj/item/rogueweapon/flail/sflail,
+				)
+
+/datum/supply_pack/rogue/steel_weapons/flail
+	name = "Warhammer"
+	cost = 40 // 1 Steel Ingot
+	contains = list(
+					/obj/item/rogueweapon/mace/warhammer/steel,
 				)
 
 /datum/supply_pack/rogue/steel_weapons/longsword
@@ -119,6 +131,13 @@
 	contains = list(
 					/obj/item/rogueweapon/greatsword/grenz,
 				)
+
+/datum/supply_pack/rogue/steel_weapons/flamberge
+	name = "Steel Flamberge"
+	cost = 105
+	contains = list(
+		/obj/item/rogueweapon/greatsword/grenz/flamberge
+	)
 
 /datum/supply_pack/rogue/steel_weapons/estoc
 	name = "Estoc"

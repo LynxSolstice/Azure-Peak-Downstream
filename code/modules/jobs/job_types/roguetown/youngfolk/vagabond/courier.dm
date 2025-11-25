@@ -5,6 +5,16 @@
 	allowed_races = RACES_ALL_KINDS
 	outfit = /datum/outfit/job/roguetown/vagabond/courier
 	category_tags = list(CTAG_VAGABOND)
+	subclass_stats = list(
+		STATKEY_PER = 2,
+		STATKEY_SPD = 2,
+		STATKEY_CON = -2,
+	)
+	subclass_skills = list(
+		/datum/skill/misc/riding = SKILL_LEVEL_EXPERT,
+		/datum/skill/misc/reading = SKILL_LEVEL_NOVICE,
+		/datum/skill/craft/cooking = SKILL_LEVEL_NOVICE,
+	)
 
 /datum/outfit/job/roguetown/vagabond/courier/pre_equip(mob/living/carbon/human/H)
 	..()
@@ -21,13 +31,9 @@
 	if(prob(33))
 		cloak = /obj/item/clothing/cloak/half/brown
 		gloves = /obj/item/clothing/gloves/roguetown/fingerless
-	
+
 	if(prob(10))
 		r_hand = /obj/item/rogue/instrument/flute
 
-	if (H.mind)
-		H.adjust_skillrank(/datum/skill/misc/riding, 4, TRUE)
-		H.adjust_skillrank(/datum/skill/misc/reading, 1, TRUE)
-		H.adjust_skillrank(/datum/skill/craft/cooking, 1, TRUE)
-		H.change_stat("constitution", -2)
-		H.change_stat("perception", 2) // never going back to that place again
+	if(H.mind)
+		SStreasury.give_money_account(ECONOMIC_DESTITUTE, H, "Savings.")

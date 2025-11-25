@@ -34,7 +34,7 @@
 	melee_damage_lower = 15
 	melee_damage_upper = 40 //Ever been rammed by a boar? Exactly.
 	STACON = 15
-	STAEND = 20//Beefy
+	STAWIL = 20//Beefy
 	STASTR = 12
 	STASPD = 8
 	move_to_delay = 8
@@ -153,7 +153,7 @@
 	footstep_type = FOOTSTEP_MOB_SHOE
 	pooptype = /obj/item/natural/poo/horse
 	STACON = 15
-	STAEND = 20//Beefy
+	STAWIL = 20//Beefy
 	STASTR = 12
 	STASPD = 6
 	move_to_delay = 10//Slowest mount
@@ -240,7 +240,7 @@
 	..()
 	deaggroprob = 50
 	if(can_buckle)
-		var/datum/component/riding/D = LoadComponent(/datum/component/riding)
+		var/datum/component/riding/D = LoadComponent(/datum/component/riding/no_ocean)
 		D.set_riding_offsets(RIDING_OFFSET_ALL, list(TEXT_NORTH = list(0, 6), TEXT_SOUTH = list(0, 6), TEXT_EAST = list(-2, 6), TEXT_WEST = list(2, 6)))
 		D.set_vehicle_dir_layer(SOUTH, MOB_LAYER+0.1)
 		D.set_vehicle_dir_layer(NORTH, OBJ_LAYER)

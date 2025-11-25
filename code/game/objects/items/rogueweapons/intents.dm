@@ -1,9 +1,3 @@
-////click cooldowns, in tenths of a second, used for various combat actions
-//#define CLICK_CD_EXHAUSTED 35
-//#define CLICK_CD_MELEE 12
-//#define CLICK_CD_RANGE 4
-//#define CLICK_CD_RAPID 2
-
 /datum/intent
 	var/name = "intent"
 	var/desc = ""
@@ -52,6 +46,7 @@
 	var/glow_color = null // The color of the glow. Used for spells
 	var/mob_light = null // tracking mob_light
 	var/obj/effect/mob_charge_effect = null // The effect to be added (on top) of the mob while it is charging
+	var/custom_swingdelay = null	//Custom icon for its swingdelay.
 
 
 	var/list/static/bonk_animation_types = list(
@@ -75,7 +70,7 @@
 		QDEL_NULL(mob_light)
 	if(mob_charge_effect)
 		mastermob.vis_contents -= mob_charge_effect
-	if(mastermob.curplaying == src)
+	if(mastermob?.curplaying == src)
 		mastermob.curplaying = null
 	mastermob = null
 	masteritem = null
@@ -232,6 +227,12 @@
 	if(mob_charge_effect)
 		mastermob?.vis_contents -= mob_charge_effect
 
+/datum/intent/proc/on_mmb(atom/target, mob/living/user, params)
+	return
+
+// Do something special when this intent is applied to a living target, H being the receiver and user being the attacker
+/datum/intent/proc/spec_on_apply_effect(mob/living/H, mob/living/user, params)
+	return
 
 /datum/intent/use
 	name = "use"
@@ -245,48 +246,6 @@
 	releasedrain = 0
 	blade_class = BCLASS_PUNCH
 
-/datum/intent/kick
-	name = "kick"
-	candodge = TRUE
-	canparry = TRUE
-	chargetime = 0
-	chargedrain = 0
-	noaa = FALSE
-	swingdelay = 5
-	misscost = 20
-	unarmed = TRUE
-	animname = "kick"
-	pointer = 'icons/effects/mousemice/human_kick.dmi'
-
-/datum/intent/bite
-	name = "bite"
-	candodge = TRUE
-	canparry = TRUE
-	chargedrain = 0
-	chargetime = 0
-	swingdelay = 0
-	unarmed = TRUE
-	noaa = FALSE
-	animname = "bite"
-	attack_verb = list("bites")
-
-/datum/intent/jump
-	name = "jump"
-	candodge = FALSE
-	canparry = FALSE
-	chargedrain = 0
-	chargetime = 0
-	noaa = TRUE
-	pointer = 'icons/effects/mousemice/human_jump.dmi'
-
-/datum/intent/steal
-	name = "steal"
-	candodge = FALSE
-	canparry = FALSE
-	chargedrain = 0
-	chargetime = 0
-	noaa = TRUE
-
 /datum/intent/give
 	name = "give"
 	candodge = FALSE
@@ -295,14 +254,6 @@
 	chargetime = 0
 	noaa = TRUE
 	pointer = 'icons/effects/mousemice/human_give.dmi'
-
-/datum/intent/spell
-	name = "spell"
-	tranged = 1
-	chargedrain = 0
-	chargetime = 0
-	warnie = "aimwarn"
-	warnoffset = 0
 
 /datum/looping_sound/invokegen
 	mid_sounds = list('sound/magic/charging.ogg')
@@ -374,7 +325,21 @@
 	item_d_type = "stab"
 	blade_class = BCLASS_PICK
 	chargetime = 0
+	clickcd = 14 // Just like knife pick!
 	swingdelay = 12
+
+/datum/intent/pick/bad	//One-handed intents
+	name = "sluggish pick"
+	icon_state = "inpick"
+	attack_verb = list("picks","impales")
+	hitsound = list('sound/combat/hits/pick/genpick (1).ogg', 'sound/combat/hits/pick/genpick (2).ogg')
+	penfactor = 60
+	animname = "strike"
+	item_d_type = "stab"
+	blade_class = BCLASS_PICK
+	chargetime = 0
+	clickcd = 16 // Just like knife pick!
+	swingdelay = 16
 
 /datum/intent/pick/ranged
 	name = "ranged pick"
@@ -383,8 +348,8 @@
 	hitsound = list('sound/combat/hits/bladed/genstab (1).ogg', 'sound/combat/hits/bladed/genstab (2).ogg', 'sound/combat/hits/bladed/genstab (3).ogg')
 	penfactor = 60
 	damfactor = 1.1
-	chargetime = 0.7
-	chargedrain = 2
+	clickcd = CLICK_CD_CHARGED
+	releasedrain = 4
 	reach = 2
 	no_early_release = TRUE
 	blade_class = BCLASS_PICK
@@ -470,6 +435,8 @@
 	intent_intdamage_factor = 0.5
 
 /datum/intent/unarmed/punch/rmb_ranged(atom/target, mob/user)
+	if(user.stat >= UNCONSCIOUS)
+		return
 	if(ismob(target))
 		var/mob/M = target
 		var/list/targetl = list(target)
@@ -512,6 +479,8 @@
 	item_d_type = "blunt"
 
 /datum/intent/unarmed/shove/rmb_ranged(atom/target, mob/user)
+	if(user.stat >= UNCONSCIOUS)
+		return
 	if(ismob(target))
 		var/mob/M = target
 		var/list/targetl = list(target)
@@ -537,6 +506,8 @@
 	item_d_type = "blunt"
 
 /datum/intent/unarmed/grab/rmb_ranged(atom/target, mob/user)
+	if(user.stat >= UNCONSCIOUS)
+		return
 	if(ismob(target))
 		var/mob/M = target
 		var/list/targetl = list(target)
@@ -559,6 +530,8 @@
 	rmb_ranged = TRUE
 
 /datum/intent/unarmed/help/rmb_ranged(atom/target, mob/user)
+	if(user.stat >= UNCONSCIOUS)
+		return
 	if(ismob(target))
 		var/mob/M = target
 		var/list/targetl = list(target)
@@ -661,6 +634,7 @@
 
 /datum/intent/effect/daze
 	name = "dazing strike"
+	desc = "A heavy strike aimed at the head to daze them."
 	icon_state = "indaze"
 	attack_verb = list("dazes")
 	animname = "strike"
@@ -672,7 +646,4 @@
 	item_d_type = "blunt"
 	intent_effect = /datum/status_effect/debuff/dazed
 	target_parts = list(BODY_ZONE_HEAD)
-
-/*/datum/intent/effect/daze/shield
-	intent_effect = /datum/status_effect/debuff/dazed/shield
-	swingdelay = 3 */
+	intent_intdamage_factor = BLUNT_DEFAULT_INT_DAMAGEFACTOR

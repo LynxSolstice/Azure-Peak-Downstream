@@ -1,7 +1,5 @@
-/*
-	Click code cleanup
-	~Sayu
-*/
+#define MAX_SAFE_BYOND_ICON_SCALE_TILES (MAX_SAFE_BYOND_ICON_SCALE_PX / world.icon_size)
+#define MAX_SAFE_BYOND_ICON_SCALE_PX (33 * 32)			//Not using world.icon_size on purpose.
 
 // 1 decisecond click delay (above and beyond mob/next_move)
 //This is mainly modified by click code, to modify click delays elsewhere, use next_move and changeNext_move()
@@ -92,6 +90,8 @@
 		return
 	next_click = world.time + 1
 
+	last_client_interact = world.time
+
 	if(check_click_intercept(params,A))
 		return
 
@@ -181,7 +181,7 @@
 //		CtrlClickOn(A)
 //		return
 	if(modifiers["right"])
-		testing("right")
+
 		if(!oactive)
 			RightClickOn(A, params)
 			return
@@ -288,7 +288,7 @@
 					resolveAdjacentClick(A,W,params,used_hand)
 					return
 				if(T)
-					testing("beginautoaim")
+
 					var/list/mobs_here = list()
 					for(var/mob/M in T)
 						if(M.invisibility || M == src)
@@ -309,14 +309,14 @@
 						changeNext_move(CLICK_CD_RAPID)
 						if(get_dist(get_turf(src), T) <= used_intent.reach)
 							do_attack_animation(T, used_intent.animname, used_intent.masteritem, used_intent = src.used_intent)
+						var/adf = used_intent.clickcd
+						if(istype(rmb_intent, /datum/rmb_intent/aimed))
+							adf = round(adf * CLICK_CD_MOD_AIMED)
+						if(istype(rmb_intent, /datum/rmb_intent/swift))
+							adf = max(round(adf * CLICK_CD_MOD_SWIFT), CLICK_CD_INTENTCAP)
+						changeNext_move(adf)
 						if(W)
 							playsound(get_turf(src), pick(W.swingsound), 100, FALSE)
-							var/adf = used_intent.clickcd
-							if(istype(rmb_intent, /datum/rmb_intent/aimed))
-								adf = round(adf * CLICK_CD_MOD_AIMED)
-							if(istype(rmb_intent, /datum/rmb_intent/swift))
-								adf = max(round(adf * CLICK_CD_MOD_SWIFT), CLICK_CD_INTENTCAP)
-							changeNext_move(adf)
 						else
 							playsound(get_turf(src), used_intent.miss_sound, 100, FALSE)
 							if(used_intent.miss_text)
@@ -347,6 +347,15 @@
 		return
 	if(W)
 		W.melee_attack_chain(src, A, params)
+		if(isliving(src))
+			var/mob/living/L = src
+			var/obj/item/offh = L.get_inactive_held_item()
+			if(offh && HAS_TRAIT(L, TRAIT_DUALWIELDER))
+				if((istype(W, offh) || istype(offh, W)) && W != offh && !(L.check_arm_grabbed(L.get_inactive_hand_index())) && (L.last_used_double_attack <= world.time))
+					if(L.stamina_add(2))
+						L.last_used_double_attack = world.time + 3 SECONDS
+						L.visible_message(span_warning("[L] seizes an opening and strikes with [L.p_their()] off-hand weapon!"), span_green("There's an opening! I strike with my off-hand weapon!"))
+						offh.melee_attack_chain(src, A, params)
 	else
 		if(ismob(A))
 			var/adf = used_intent.clickcd
@@ -356,7 +365,7 @@
 				adf = max(round(adf * CLICK_CD_MOD_SWIFT), CLICK_CD_INTENTCAP)
 			changeNext_move(adf)
 		UnarmedAttack(A,1,params)
-	if(mob_timers[MT_INVISIBILITY] > world.time)			
+	if(mob_timers[MT_INVISIBILITY] > world.time)
 		mob_timers[MT_INVISIBILITY] = world.time
 		update_sneak_invis(reset = TRUE)
 
@@ -585,7 +594,7 @@
 	return
 /atom/proc/ShiftClick(mob/user)
 	SEND_SIGNAL(src, COMSIG_CLICK_SHIFT, user)
-	if(user.client && user.client.eye == user || user.client.eye == user.loc)
+	if(user.client /*&& user.client.eye == user || user.client.eye == user.loc*/)
 		user.examinate(src)
 	return
 
@@ -655,8 +664,7 @@
 		user.client.statpanel = T.name
 
 /mob/proc/CtrlRightClickOn(atom/A, params)
-	linepoint(A, params)
-	return
+	pointed(A)
 
 /*
 	Misc helpers
@@ -669,13 +677,13 @@
 // Simple helper to face another atom, much nicer than byond's dir = get_dir(src,A) which is biased in some ugly ways
 /atom/proc/face_atom(atom/A, location, control, params)
 	if(!A)
-		return
+		return FALSE
 	if(!A.xyoverride)
 		if((!A || !x || !y || !A.x || !A.y))
-			return
+			return FALSE
 	var/atom/holder = A.face_me(location, control, params)
 	if(!holder)
-		return
+		return FALSE
 	var/dx = holder.x - x
 	var/dy = holder.y - y
 	if(!dx && !dy) // Wall items are graphically shifted but on the floor
@@ -687,7 +695,7 @@
 			setDir(EAST)
 		else if(holder.pixel_x < -16)
 			setDir(WEST)
-		return
+		return TRUE
 
 	if(abs(dx) < abs(dy))
 		if(dy > 0)
@@ -699,18 +707,37 @@
 			setDir(EAST)
 		else
 			setDir(WEST)
+	return TRUE
 
 /mob/face_atom(atom/A)
 	if(!canface())
 		return FALSE
-	..()
+	return ..()
 
 /mob/living/face_atom(atom/A)
-	var/olddir = dir
-	..()
-	if(dir != olddir)
+	var/old_dir = dir
+	. = ..()
+	if(!.)
+		return
+	if(dir != old_dir)
 		last_dir_change = world.time
 		sprinted_tiles = 0
+		if(length(buckled_mobs))
+			face_atom_buckled_mobs(A)
+
+/mob/living/proc/face_atom_buckled_mobs(atom/A)
+	for(var/mob/mob in buckled_mobs)
+		mob.setDir(dir)
+	var/datum/component/riding/riding_datum = LoadComponent(/datum/component/riding)
+	riding_datum.handle_vehicle_layer()
+	riding_datum.handle_vehicle_offsets()
+
+/mob/living/carbon/human/face_atom_buckled_mobs(atom/A)
+	for(var/mob/mob in buckled_mobs)
+		mob.setDir(dir)
+	var/datum/component/riding/human/riding_datum = LoadComponent(/datum/component/riding/human)
+	riding_datum.handle_vehicle_layer()
+	riding_datum.handle_vehicle_offsets()
 
 //debug
 /atom/movable/screen/proc/scale_to(x1,y1)
@@ -731,9 +758,6 @@
 	screen_loc = "CENTER"
 	xyoverride = TRUE
 	blockscharging = FALSE
-
-#define MAX_SAFE_BYOND_ICON_SCALE_TILES (MAX_SAFE_BYOND_ICON_SCALE_PX / world.icon_size)
-#define MAX_SAFE_BYOND_ICON_SCALE_PX (33 * 32)			//Not using world.icon_size on purpose.
 
 /atom/movable/screen/click_catcher/proc/UpdateGreed(view_size_x = 15, view_size_y = 15)
 	var/icon/newicon = icon('icons/mob/screen_gen.dmi', "catcher")
@@ -820,7 +844,10 @@
 		used_intent.rmb_ranged(A, src) //get the message from the intent
 	changeNext_move(CLICK_CD_RAPID)
 	if(isturf(A.loc))
-		face_atom(A)
+		if(buckled)
+			buckled.face_atom(A)
+		else
+			face_atom(A)
 
 /mob/proc/TargetMob(mob/target)
 	if(ismob(target))
@@ -858,7 +885,7 @@
 		eyet.update_icon(src)
 
 /mob/proc/ShiftRightClickOn(atom/A, params)
-//	linepoint(A, params)
+//	pointed(A, params)
 //	A.ShiftRightClick(src)
 	return
 
@@ -868,19 +895,23 @@
 	if(stat)
 		return
 	if(get_dist(src, A) <= 2)
-		if(T == loc)
+		if(A.loc == src)
+			A.ShiftRightClick(src)
+		else if(T == loc)
 			look_up()
 		else
 			if(istransparentturf(T))
-				look_down(T)
-			else
-				look_further(T)
+				var/turf/MT = get_turf(src)
+				if((T in view(MT))) // if we got line of sight, allow player to look down
+					look_down(T)
+					return
+			look_further(T)
 	else
 		look_further(T)
 
 /atom/proc/ShiftRightClick(mob/user)
 	SEND_SIGNAL(src, COMSIG_CLICK_RIGHT_SHIFT, user)
-	if(user.client && user.client.eye == user || user.client.eye == user.loc)
+	if(user.client /*&& user.client.eye == user || user.client.eye == user.loc*/)
 		user.examinate(src)
 
 /mob/proc/addtemptarget()
@@ -910,11 +941,8 @@
 	if(rmb_intent?.adjacency && !Adjacent(A))
 		return FALSE
 
-	rmb_intent.special_attack(src, ismob(A) ? A : get_foe_from_turf(get_turf(A)))
+	rmb_intent.special_attack(src, ismob(A) ? A : rmb_intent.prioritize_turfs ? get_turf(A) : get_foe_from_turf(get_turf(A)))
 	return TRUE
-
-/mob/living/carbon/human/species/skeleton/try_special_attack(atom/A, list/modifiers)
-	return FALSE
 
 /// Used for "directional" style rmb attacks on a turf, prioritizing standing targets
 /mob/living/proc/get_foe_from_turf(turf/T)
@@ -942,3 +970,6 @@
 	if(foes.len > 1)
 		sortTim(foes, cmp = /proc/cmp_numeric_dsc, associative = TRUE)
 	return foes[1]
+
+#undef MAX_SAFE_BYOND_ICON_SCALE_TILES
+#undef MAX_SAFE_BYOND_ICON_SCALE_PX

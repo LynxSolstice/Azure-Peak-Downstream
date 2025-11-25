@@ -20,7 +20,7 @@
 	drop_sound = 'sound/foley/dropsound/shovel_drop.ogg'
 	smeltresult = /obj/item/ingot/iron
 	associated_skill = /datum/skill/combat/axes		//Not an axe but fuck it - you're logging anyway.
-	max_blade_int = 50
+	max_blade_int = 300
 
 //................	Chisel	............... //
 /obj/item/rogueweapon/chisel
@@ -44,7 +44,7 @@
 	swingsound = list('sound/combat/wooshes/blunt/shovel_swing.ogg','sound/combat/wooshes/blunt/shovel_swing2.ogg')
 	drop_sound = 'sound/foley/dropsound/shovel_drop.ogg'
 	associated_skill = /datum/skill/combat/knives	//Not a knife but kinda similar to etching so..
-	max_blade_int = 50
+	max_blade_int = 300
 	dropshrink = 0.9
 	var/already_assembled
 
@@ -98,6 +98,14 @@
 		qdel(src)
 		return
 
+	else if(istype(W, /obj/item/rogueweapon/hammer/blacksteel))
+		playsound(get_turf(user.loc), 'sound/foley/brickdrop.ogg', 100)
+		user.visible_message("<span class='info'>[user] adds a striking tool to the chisel set.</span>")
+		var/obj/item/rogueweapon/chisel/assembly/hammerblacksteel/F = new(src.loc)
+		qdel(W)
+		user.put_in_hands(F)
+		qdel(src)
+		return
 //................	Chisel toolset	............... //
 /obj/item/rogueweapon/chisel/assembly	// template
 	name = "chisel set"
@@ -135,6 +143,7 @@
 /obj/item/rogueweapon/chisel/assembly/hammerclaw
 	icon_state = "chiselc"
 	item_state = "hammer_s"
+
 /obj/item/rogueweapon/chisel/assembly/hammerclaw/attack_right(mob/user)
 	var/obj/item/rogueweapon/chisel/F = new(user.loc)
 	var/obj/item/rogueweapon/hammer/steel/E = new(user.loc)
@@ -143,9 +152,22 @@
 	qdel(src)
 	user.put_in_hands(F)
 
+/obj/item/rogueweapon/chisel/assembly/hammerblacksteel
+	icon_state = "chiselbh"
+	item_state = "bs_masterhammer"
+
+/obj/item/rogueweapon/chisel/assembly/hammerblacksteel/attack_right(mob/user)
+	var/obj/item/rogueweapon/chisel/F = new(user.loc)
+	var/obj/item/rogueweapon/hammer/blacksteel/E = new(user.loc)
+	user.put_in_hands(E)
+	playsound(get_turf(user.loc), 'sound/foley/brickdrop.ogg', 100)
+	qdel(src)
+	user.put_in_hands(F)
+
 /obj/item/rogueweapon/chisel/assembly/stone
 	icon_state = "chisels"
 	item_state = "stone"
+
 /obj/item/rogueweapon/chisel/assembly/stone/attack_right(mob/user)
 	var/obj/item/rogueweapon/chisel/F = new(user.loc)
 	var/obj/item/natural/stone/E = new(user.loc)
@@ -157,6 +179,7 @@
 /obj/item/rogueweapon/chisel/assembly/stoneblock
 	icon_state = "chiselb"
 	item_state = "block"
+
 /obj/item/rogueweapon/chisel/assembly/stoneblock/attack_right(mob/user)
 	var/obj/item/rogueweapon/chisel/F = new(user.loc)
 	var/obj/item/natural/stoneblock/E = new(user.loc)
@@ -176,3 +199,5 @@
 	blade_class = BCLASS_CHISEL
 	chargetime = 0
 	swingdelay = 3
+
+#undef BCLASS_CHISEL
