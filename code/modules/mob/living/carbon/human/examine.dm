@@ -777,6 +777,7 @@
 			if(-INFINITY to -5)
 				. += span_revennotice("[t_He] look[p_s()] as blunt-minded as a rock.")
 
+	var/medical_text = ""
 	if(Adjacent(user))
 		if(observer_privilege)
 			var/static/list/check_zones = list(
